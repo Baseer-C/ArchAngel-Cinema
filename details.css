@@ -222,6 +222,121 @@ body { background: var(--paper); }
 .contractor-theme .scope-rail span { border-color: rgba(23,33,39,.18); }
 .scope-rail span:last-child { border-right: 0; }
 
+.contractor-client-proof {
+  display: grid;
+  grid-template-columns: minmax(190px,.52fr) 1.05fr 1fr;
+  gap: clamp(26px,4vw,58px);
+  align-items: stretch;
+  padding-top: clamp(46px,5vw,70px);
+  padding-bottom: clamp(46px,5vw,70px);
+  border-bottom: 1px solid var(--detail-line);
+}
+.contractor-client-proof-image {
+  position: relative;
+  min-height: 250px;
+  overflow: hidden;
+  background: var(--detail-dark);
+}
+.contractor-client-proof-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 46%, rgba(10,17,22,.82));
+}
+.contractor-client-proof-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 36%;
+}
+.contractor-client-proof-image > span {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: 13px;
+  left: 14px;
+  color: #fff;
+  font: 500 8px var(--mono);
+  letter-spacing: .07em;
+}
+.contractor-client-proof-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.contractor-client-proof-copy .eyebrow { margin-bottom: 14px; }
+.contractor-client-proof-copy .eyebrow span { background: var(--detail-accent); }
+.contractor-client-proof-copy h2 {
+  margin: 0;
+  max-width: 620px;
+  font-size: clamp(30px,3.25vw,48px);
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+.contractor-client-proof-copy > p:not(.eyebrow) {
+  max-width: 610px;
+  margin: 17px 0;
+  color: #526475;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.contractor-client-proof-copy > a {
+  align-self: flex-start;
+  color: var(--detail-dark);
+  font: 600 10px var(--mono);
+  letter-spacing: .04em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--detail-accent);
+  padding-bottom: 4px;
+}
+.contractor-client-proof-copy > a span { color: var(--detail-accent); }
+.contractor-client-proof-evidence {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: clamp(22px,3vw,42px);
+  border-left: 1px solid var(--detail-line);
+}
+.contractor-client-proof-evidence blockquote {
+  margin: 0;
+  color: var(--detail-dark);
+  font: 400 clamp(18px,1.65vw,24px)/1.35 "DM Serif Display",serif;
+}
+.contractor-client-proof-evidence cite {
+  margin-top: 10px;
+  color: #6b7b87;
+  font: 500 8px/1.5 var(--mono);
+  font-style: normal;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.contractor-proof-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 18px;
+  border-top: 1px solid var(--detail-line);
+  border-bottom: 1px solid var(--detail-line);
+}
+.contractor-proof-stats a {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 10px 10px 0;
+  color: var(--detail-dark);
+  text-decoration: none;
+}
+.contractor-proof-stats a + a { padding-left: 12px; border-left: 1px solid var(--detail-line); }
+.contractor-proof-stats strong { font-size: 21px; letter-spacing: -.05em; }
+.contractor-proof-stats span { color: #6a7c89; font: 500 7px var(--mono); letter-spacing: .06em; }
+.contractor-client-proof-evidence > small {
+  max-width: 520px;
+  margin-top: 12px;
+  color: #74818a;
+  font: 500 7px/1.55 var(--mono);
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+
 .video-showcase {
   padding-top: clamp(74px, 8vw, 112px);
   padding-bottom: clamp(78px, 9vw, 124px);
@@ -486,9 +601,20 @@ body { background: var(--paper); }
 .mock-window,
 .handoff-stack,
 .proposal-sheet { height: 220px; }
-.flow-media-frame { overflow: hidden; background: var(--detail-dark); }
+.flow-media-frame { position: relative; overflow: hidden; background: var(--detail-dark); }
 .flow-media-frame img { width: 100%; height: 100%; object-fit: cover; }
-.contractor-flow .flow-media-frame img { object-position: 58% center; }
+.contractor-flow .flow-media-frame img { object-position: 45% center; }
+.flow-media-frame > small {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  padding: 6px 7px;
+  background: rgba(15,23,27,.76);
+  color: #fff;
+  font: 500 7px var(--mono);
+  letter-spacing: .06em;
+}
 .mock-window {
   position: relative;
   display: flex;
@@ -698,6 +824,9 @@ body { background: var(--paper); }
   .scope-rail span:nth-child(2n) { border-right: 0; }
   .scope-rail span:last-child { grid-column: 1 / -1; border-bottom: 0; }
   .contractor-theme .scope-rail span { border-bottom-color: rgba(23,33,39,.18); }
+  .contractor-client-proof { grid-template-columns: .72fr 1.28fr; }
+  .contractor-client-proof-image { min-height: 300px; }
+  .contractor-client-proof-evidence { grid-column: 1 / -1; padding: 24px 0 0; border-top: 1px solid var(--detail-line); border-left: 0; }
   .dealer-work,
   .project-showcase,
   .inhouse-signature { grid-template-columns: 1fr; }
@@ -725,6 +854,9 @@ body { background: var(--paper); }
 
 @media (max-width: 560px) {
   .detail-hero-copy small { font-size: 8px; }
+  .contractor-client-proof { grid-template-columns: 1fr; gap: 24px; }
+  .contractor-client-proof-image { min-height: 0; height: 250px; }
+  .contractor-client-proof-evidence { grid-column: auto; }
   .service-grid,
   .system-flow { grid-template-columns: 1fr; }
   .service-grid article,
