@@ -792,12 +792,68 @@
 }
 
 .footer-summary { display: flex; align-items: center; gap: clamp(18px,3vw,36px); }
-.footer-about-link { flex: 0 0 auto; color: var(--ink); font: 700 10px var(--sans); text-decoration: none; white-space: nowrap; }
-.footer-about-link span { color: var(--orange); }
-.footer-about-link:hover { color: var(--orange); }
 
 @media (max-width: 850px) {
   .footer-summary { align-items: flex-start; flex-direction: column; gap: 10px; }
+}
+
+/* Compact founder proof beside the pilot-to-managed process. */
+.method-founder {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: clamp(20px, 3.5vw, 52px);
+  align-items: center;
+  margin-top: clamp(34px, 5vw, 64px);
+  padding: clamp(18px, 2.6vw, 32px);
+  border: 1px solid var(--line);
+  background: linear-gradient(120deg, #e8eef3, #f8fafc 68%);
+  box-shadow: 10px 10px 0 var(--paper-deep);
+}
+.method-founder img {
+  width: 96px;
+  height: 112px;
+  object-fit: cover;
+  object-position: center 28%;
+  filter: saturate(.78) contrast(1.04);
+}
+.method-founder .eyebrow { margin: 0 0 9px; color: #536879; }
+.method-founder .eyebrow span { background: var(--orange); }
+.method-founder h3 {
+  margin: 0;
+  font-size: clamp(21px, 2.25vw, 32px);
+  line-height: 1.05;
+  letter-spacing: -.055em;
+}
+.method-founder div > p:last-child {
+  max-width: 710px;
+  margin: 9px 0 0;
+  color: #536879;
+  font-size: 14px;
+  line-height: 1.58;
+}
+.method-founder-link {
+  min-width: 154px;
+  padding: 14px 17px;
+  background: var(--ink);
+  color: #fff;
+  transition: color .2s, background .2s, transform .2s;
+}
+.method-founder-link span { color: #ff9a61; font-size: 15px; }
+.method-founder-link:hover { background: var(--orange); color: #fff; transform: translateY(-2px); }
+.method-founder-link:hover span { color: #fff; }
+
+@media (max-width: 850px) {
+  .method-founder { grid-template-columns: 76px 1fr; align-items: start; }
+  .method-founder img { width: 76px; height: 92px; }
+  .method-founder-link { grid-column: 2; width: fit-content; }
+}
+
+@media (max-width: 520px) {
+  .method-founder { grid-template-columns: 62px 1fr; gap: 16px; padding: 17px; box-shadow: 7px 7px 0 var(--paper-deep); }
+  .method-founder img { width: 62px; height: 78px; }
+  .method-founder h3 { font-size: 21px; }
+  .method-founder div > p:last-child { font-size: 13px; }
+  .method-founder-link { grid-column: 1 / -1; width: 100%; }
 }
 
 /* Managed-service cards: hover on pointer devices, explicit controls everywhere else. */

@@ -9,7 +9,12 @@ const mobileCta = document.querySelector('.mobile-cta');
 const floatingCtaZones = document.querySelectorAll('[data-floating-cta-zone], video[controls], .pilot-plan, .detail-cta');
 const activeFloatingCtaZones = new Set();
 const trackEvent = (name, parameters = {}) => {
-  if (typeof window.gtag === 'function') window.gtag('event', name, parameters);
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', name, parameters);
+    return;
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: name, ...parameters });
 };
 
 document.querySelectorAll('a[href*="#start"]').forEach((link) => link.addEventListener('click', () => {
@@ -28,6 +33,10 @@ document.querySelectorAll('[data-proof-link]').forEach((link) => link.addEventLi
 
 document.querySelectorAll('[data-social-proof]').forEach((link) => link.addEventListener('click', () => {
   trackEvent('social_proof_click', { page_path: window.location.pathname, platform: link.dataset.socialProof });
+}));
+
+document.querySelectorAll('[data-about-link]').forEach((link) => link.addEventListener('click', () => {
+  trackEvent('about_page_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
 }));
 
 const managedFlipCards = [...document.querySelectorAll('[data-flip-card]')];
