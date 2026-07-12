@@ -1,4 +1,6 @@
-# Squarespace to AWS Amplify migration
+# Archived Amplify migration plan
+
+> This file records the earlier Amplify option and is not the current production procedure. The site now uses private S3 hosting through CloudFront. Follow [`SITE_MANAGEMENT.md`](SITE_MANAGEMENT.md) for publishing and maintenance.
 
 ## Recommended architecture
 
