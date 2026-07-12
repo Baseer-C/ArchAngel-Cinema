@@ -1,21 +1,22 @@
 # Tracking setup for ArchAngel Cinema
 
-## Recommended stack
+## Current implementation
 
-1. **Google Tag Manager (GTM)** as the single installation point for analytics and future ad-platform tags.
-2. **Google Analytics 4 (GA4)** for acquisition, landing-page behavior, and lead attribution.
-3. **Google Search Console** for organic queries, impressions, clicks, and landing pages.
-4. **Microsoft Clarity** for privacy-masked heatmaps and session recordings.
+The existing Squarespace-era GA4 property and Web data stream are being reused. The Google tag for measurement ID `G-JGWJEMBYHK` is installed directly after `<head>` on all five pages:
 
-Use GTM rather than pasting separate vendor scripts throughout the site. It makes later Google Ads, Meta, LinkedIn, or call-tracking additions easier to audit and remove.
+- `index.html`
+- `proof/index.html`
+- `dealerships/index.html`
+- `contractors/index.html`
+- `about/index.html`
 
-## Events already emitted by the site
+This preserves the property's historical data and does not require a Route 53 or DNS change. Google Tag Manager is not required for the current site; it can be added later if several additional advertising or analytics vendors need to be managed centrally.
 
-The site sends these events through `gtag` when the Google tag is installed directly, or through `dataLayer` when GTM is installed:
+## Events emitted by the site
 
 | Event | When it fires | Parameters | Use |
 | --- | --- | --- | --- |
-| `generate_lead` | Formspree confirms a successful inquiry | `page_path`, `vertical` | Primary key event |
+| `generate_lead` | Formspree confirms a successful inquiry | `page_path`, `vertical` | Primary key event and Ads conversion |
 | `free_asset_click` | A visitor clicks a free-asset CTA | `page_path`, `link_text` | High-intent micro-conversion |
 | `proof_page_click` | A visitor opens the proof page | `page_path`, `link_text` | Proof interest |
 | `about_page_click` | A visitor opens the Baseer page | `page_path`, `link_text` | Founder-trust interest |
@@ -24,59 +25,51 @@ The site sends these events through `gtag` when the Google tag is installed dire
 | `video_complete` | A non-scroll video finishes | `page_path`, `video_name` | Deep engagement |
 | `social_proof_click` | A visitor verifies David's social profile | `page_path`, `platform` | Social-proof verification |
 
-Form submissions preserve `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, and `utm_term` in the Formspree payload. Names, emails, company names, URLs, and message contents are not sent to GA4 by the site event code.
+Form submissions preserve `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, and `utm_term` in the Formspree payload. Names, emails, company names, URLs, and message contents are not sent to GA4 by the custom event code.
 
-## 1. Create GA4
+## 1. Publish and verify the Google tag
 
-1. In Google Analytics, create one property for ArchAngel Cinema.
-2. Create a Web data stream for `https://archangelcinema.com`.
-3. Copy the stream's Google tag ID, which begins with `G-`.
-4. Leave Enhanced Measurement enabled for page views, outbound clicks, scrolls, and downloads.
+1. Upload the five HTML pages containing the tag to S3.
+2. Invalidate the CloudFront cache for `/*`.
+3. Open the production site in a private browser window and visit several pages.
+4. In GA4, open **Reports → Realtime** and confirm the current user and page views appear.
+5. Use Google Tag Assistant if the Realtime report stays empty.
 
-Official guide: https://support.google.com/tagmanager/answer/9442095
+Google's manual-installation guidance calls for one complete Google tag on every page, immediately after `<head>`: https://support.google.com/analytics/answer/9744165
 
-## 2. Install GTM on every page
+## 2. Verify the custom events
 
-1. Create one Web container at https://tagmanager.google.com.
-2. Copy the exact two snippets GTM generates for the container.
-3. Add the first snippet immediately after `<head>` and the second immediately after `<body>` in:
-   - `index.html`
-   - `proof/index.html`
-   - `dealerships/index.html`
-   - `contractors/index.html`
-   - `about/index.html`
-4. Do not publish the container yet.
+After the production tag is live, test these actions while watching GA4 Realtime or DebugView:
 
-## 3. Configure GA4 inside GTM
+1. Click a free-video CTA and confirm `free_asset_click`.
+2. Open Proof and confirm `proof_page_click`.
+3. Open a Managed Monthly card and confirm `managed_card_open`.
+4. Open the Baseer page from the founder strip and confirm `about_page_click`.
+5. Start and finish a portfolio video and confirm `video_start` and `video_complete`.
+6. Submit one genuine test inquiry and confirm `generate_lead` appears only after Formspree reports success.
 
-1. Create a **Google tag** using the `G-` ID and fire it on **Initialization — All Pages**.
-2. Enable the built-in `Event` variable.
-3. Create Data Layer Variables for:
-   - `page_path`
-   - `link_text`
-   - `vertical`
-   - `video_name`
-   - `platform`
-   - `service`
-4. Create one **Custom Event** trigger with this regular expression:
+Do not create separate GA4 events from generic click or submit rules for these actions; the site already emits the correctly named events, and duplicating them would inflate the numbers.
 
-   ```text
-   ^(generate_lead|free_asset_click|proof_page_click|about_page_click|managed_card_open|video_start|video_complete|social_proof_click)$
-   ```
+## 3. Mark the real lead conversion
 
-5. Create one **Google Analytics: GA4 Event** tag:
-   - Event name: `{{Event}}`
-   - Add the six event parameters above using their matching Data Layer Variables.
-   - Trigger: the Custom Event trigger from the previous step.
-6. Use GTM Preview and confirm page views plus each relevant custom event before publishing.
-
-Google's current GTM verification workflow uses Tag Assistant Preview: https://support.google.com/tagmanager/answer/9442095
-
-## 4. Mark the real conversion
-
-In GA4, go to **Admin → Data display → Events** and mark only `generate_lead` as a key event. Keep CTA clicks, proof views, videos, and card opens as diagnostic events so the headline conversion rate remains honest.
+In GA4, go to **Admin → Data display → Events** and mark only `generate_lead` as a key event. Leave CTA clicks, proof views, card opens, and videos as diagnostic events so the reported lead-conversion rate remains honest.
 
 Official key-event guide: https://support.google.com/analytics/answer/13128484
+
+## 4. Link Google Ads account 869-337-2243
+
+1. In GA4, go to **Admin → Product links → Google Ads links**.
+2. Click **Link**, choose Google Ads account `869-337-2243`, and complete the link.
+3. In Google Ads, verify auto-tagging is enabled.
+4. After `generate_lead` has appeared in GA4, go to **Goals → Conversions → Summary**.
+5. Click **Create conversion action**, choose the connected GA4 property, and select `generate_lead`.
+6. Save it and use it as the campaign's primary lead conversion only after a real test lead has been recorded correctly.
+
+Official linking guide: https://support.google.com/analytics/answer/9379420
+
+Official conversion-import guide: https://support.google.com/google-ads/answer/2375435
+
+The separate `AW-18168112853` destination shown in Google Tags does not need to be pasted into the website just to import the GA4 lead event. Linking GA4 to Google Ads and creating the Ads conversion from `generate_lead` avoids maintaining two independent lead definitions.
 
 ## 5. Register useful custom dimensions
 
@@ -87,13 +80,13 @@ In **Admin → Data display → Custom definitions**, create event-scoped custom
 - `platform`
 - `service`
 
-`page_path` and link-related data often already have standard GA4 dimensions, so avoid creating redundant definitions unless a report genuinely needs them. Google recommends avoiding unnecessary or high-cardinality custom dimensions.
+Avoid unnecessary or high-cardinality dimensions. Page path and common link information already have standard GA4 reporting dimensions.
 
 Official custom-dimension guide: https://support.google.com/analytics/answer/14240153
 
-## 6. Use a consistent UTM convention
+## 6. Use one UTM convention
 
-Use lowercase values and never change naming halfway through a campaign.
+Use lowercase values and do not change naming halfway through a campaign.
 
 ```text
 utm_source=google|meta|instagram|linkedin|email|partner
@@ -103,38 +96,30 @@ utm_content=contractor_project_proof_a
 utm_term=optional_keyword
 ```
 
-Every ad or outreach link should receive a UTM-tagged destination. Formspree will retain these values with the lead, allowing the inquiry to be compared with GA4 attribution.
+Every paid ad or outreach link should use a tagged destination. Formspree retains the UTM values with the lead, so lead quality can be compared with GA4 attribution.
 
-## 7. Connect Search Console
+## 7. Search Console and Clarity
 
-1. Verify the domain property for `archangelcinema.com` in Search Console using the DNS method.
-2. Link that property to the GA4 Web data stream.
-3. Publish the Search Console reports inside the GA4 Reports library if desired.
+The Route 53 screenshot already shows a Google site-verification TXT value. Confirm the domain property is available in Search Console, then link it to this GA4 property under **Admin → Product links → Search Console links**.
 
-Official linking guide: https://support.google.com/analytics/answer/10737381
+Official Search Console linking guide: https://support.google.com/analytics/answer/10737381
 
-## 8. Add Clarity carefully
+Microsoft Clarity is optional. If enabled, install its project tag on all five pages, retain sensitive-content masking, and add appropriate privacy/consent disclosures for the jurisdictions and advertising tools being used.
 
-1. Create one Clarity project for the production domain.
-2. Install its tag through GTM on All Pages.
-3. Keep sensitive-content masking enabled.
-4. Confirm the `clarity.ms/collect` request and a live recording before relying on the data.
-5. Add analytics/session-recording disclosure and an appropriate consent mechanism for the locations and advertising platforms being used.
+Official Clarity installation guide: https://learn.microsoft.com/clarity/setup-and-installation/clarity-setup
 
-Official Clarity installation and verification guide: https://learn.microsoft.com/clarity/setup-and-installation/clarity-setup
+## Final validation checklist
 
-## 9. Final validation checklist
+- Exactly one Google tag with ID `G-JGWJEMBYHK` appears on every page.
+- GA4 Realtime receives all five routes.
+- `generate_lead` fires only after a successful Formspree response.
+- No personal form values appear in GA4 or Google Ads.
+- A test UTM submission reaches Formspree with all five UTM fields.
+- GA4 is linked to Google Ads account `869-337-2243`.
+- Google Ads receives one conversion action based on `generate_lead`.
+- Internal/test traffic is excluded or clearly labeled before evaluating campaign performance.
 
-- GTM Preview shows the Google tag on all five pages.
-- GA4 Realtime receives page views from all five routes.
-- `generate_lead` fires only after Formspree returns success—not merely when Submit is clicked.
-- CTA, proof, managed-card, About, and video events contain the expected parameters.
-- No personal form values appear in GA4, GTM Preview, or Clarity.
-- A test UTM submission arrives in Formspree with all five UTM fields.
-- Your own office/home traffic is excluded or clearly labeled before judging campaign performance.
-- GTM is published as a named version so the setup can be rolled back.
-
-## First reporting view to build
+## First report to build
 
 Create a GA4 funnel exploration:
 
@@ -142,4 +127,4 @@ Create a GA4 funnel exploration:
 2. `free_asset_click` or `proof_page_click`
 3. `generate_lead`
 
-Break the funnel down by landing page, source/medium, campaign, device category, and `vertical`. For a low-volume local business, evaluate lead quality in Formspree or the CRM alongside the GA4 count; do not optimize based on clicks alone.
+Break it down by landing page, source/medium, campaign, device category, and `vertical`. For a low-volume local business, always compare the GA4 lead count with actual lead quality in Formspree or the CRM.

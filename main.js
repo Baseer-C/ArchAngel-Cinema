@@ -399,7 +399,7 @@ form?.addEventListener('submit', async (event) => {
   });
   payload.source_page = window.location.pathname;
   const configuredAction = form.getAttribute('action');
-  const endpoint = form.dataset.endpoint || window.ARCHANGEL_INQUIRY_ENDPOINT || configuredAction;
+  const endpoint = form.dataset.endpoint || configuredAction;
   if (!endpoint) {
     status.textContent = 'This preview is not connected yet. Add the Formspree form ID before publishing.';
     status.className = 'error';
