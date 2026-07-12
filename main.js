@@ -6,7 +6,7 @@ const form = document.querySelector('#inquiry-form');
 const status = document.querySelector('#form-status');
 const initialVertical = vertical?.value || 'Dealerships';
 const mobileCta = document.querySelector('.mobile-cta');
-const floatingCtaZones = document.querySelectorAll('[data-floating-cta-zone]');
+const floatingCtaZones = document.querySelectorAll('[data-floating-cta-zone], video[controls], .pilot-plan, .detail-cta');
 const activeFloatingCtaZones = new Set();
 const trackEvent = (name, parameters = {}) => {
   if (typeof window.gtag === 'function') window.gtag('event', name, parameters);
@@ -29,6 +29,67 @@ document.querySelectorAll('[data-proof-link]').forEach((link) => link.addEventLi
 document.querySelectorAll('[data-social-proof]').forEach((link) => link.addEventListener('click', () => {
   trackEvent('social_proof_click', { page_path: window.location.pathname, platform: link.dataset.socialProof });
 }));
+
+const managedFlipCards = [...document.querySelectorAll('[data-flip-card]')];
+const preciseHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+managedFlipCards.forEach((card) => {
+  const front = card.querySelector('.managed-card-front');
+  const back = card.querySelector('.managed-card-back');
+  const openButton = front?.querySelector('.managed-card-toggle');
+  const closeButton = back?.querySelector('.managed-card-close');
+  if (!front || !back || !openButton || !closeButton) return;
+
+  const setFaceState = (flipped, focusTarget = null) => {
+    const activeFace = flipped ? back : front;
+    const inactiveFace = flipped ? front : back;
+    card.classList.toggle('is-flipped', flipped);
+    openButton.setAttribute('aria-expanded', String(flipped));
+    activeFace.setAttribute('aria-hidden', 'false');
+    activeFace.removeAttribute('inert');
+    if (focusTarget) focusTarget.focus({ preventScroll: true });
+    inactiveFace.setAttribute('aria-hidden', 'true');
+    inactiveFace.setAttribute('inert', '');
+  };
+
+  const closeCard = (returnFocus = false) => {
+    card.dataset.pinned = 'false';
+    if (card.matches(':hover')) card.dataset.hoverClosed = 'true';
+    setFaceState(false, returnFocus ? openButton : null);
+  };
+
+  card.addEventListener('pointerenter', (event) => {
+    if (event.pointerType !== 'mouse'
+      || !preciseHover.matches
+      || window.innerWidth <= 850
+      || card.matches(':focus-within')
+      || card.dataset.pinned === 'true'
+      || card.dataset.hoverClosed === 'true') return;
+    setFaceState(true);
+  });
+  card.addEventListener('pointerleave', (event) => {
+    if (event.pointerType !== 'mouse') return;
+    delete card.dataset.hoverClosed;
+    if (card.dataset.pinned !== 'true' && !card.matches(':focus-within')) setFaceState(false);
+  });
+  openButton.addEventListener('click', () => {
+    card.dataset.pinned = 'true';
+    setFaceState(true, closeButton);
+    trackEvent('managed_card_open', { service: openButton.getAttribute('aria-controls') });
+  });
+  closeButton.addEventListener('click', () => closeCard(true));
+  card.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !card.classList.contains('is-flipped')) return;
+    event.preventDefault();
+    closeCard(true);
+  });
+  card.addEventListener('focusout', () => {
+    window.requestAnimationFrame(() => {
+      if (card.dataset.pinned !== 'true'
+        && !card.matches(':hover')
+        && !card.matches(':focus-within')) setFaceState(false);
+    });
+  });
+});
 
 const deferredVideos = [...document.querySelectorAll('video source[data-src]')]
   .map((source) => source.closest('video'))

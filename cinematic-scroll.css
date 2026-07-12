@@ -146,7 +146,10 @@
   letter-spacing: -.015em;
   text-wrap: balance;
 }
-.film-actions { margin-top: 34px; display: flex; align-items: center; gap: 26px; pointer-events: auto; }
+.film-qualifier { width: min(650px, 86vw); margin-top: 20px; font-size: clamp(14px, 1.05vw, 17px); }
+.film-qualifier strong { color: #fff; font-weight: 700; }
+.film-copy-opening .film-actions { margin-top: 24px; }
+.film-actions { margin-top: 34px; display: flex; align-items: center; gap: 26px; pointer-events: none; }
 .film-actions .text-link { color: #fff; }
 
 .scroll-film[data-stage="0"] .film-copy:nth-child(1),
@@ -156,6 +159,13 @@
   opacity: 1;
   transform: translate3d(0, 0, 0);
   filter: blur(0);
+}
+
+.scroll-film[data-stage="0"] .film-copy:nth-child(1) .film-actions,
+.scroll-film[data-stage="1"] .film-copy:nth-child(2) .film-actions,
+.scroll-film[data-stage="2"] .film-copy:nth-child(3) .film-actions,
+.scroll-film[data-stage="3"] .film-copy:nth-child(4) .film-actions {
+  pointer-events: auto;
 }
 
 .film-progress {
@@ -181,7 +191,9 @@
   .film-copy { left: 22px; bottom: 112px; width: calc(100vw - 44px); }
   .film-copy p { max-width: 290px; line-height: 1.55; }
   .film-copy h1, .film-copy h2 { font-size: clamp(48px, 13.5vw, 76px); line-height: .9; }
+  .film-qualifier { width: min(520px, calc(100vw - 44px)); margin-top: 17px; font-size: 14px; line-height: 1.45; }
   .film-actions { align-items: flex-start; flex-direction: column; gap: 17px; margin-top: 28px; }
+  .film-copy-opening .film-actions { margin-top: 20px; }
   .film-actions .button { width: auto; }
   .film-time { bottom: 29px; }
   .film-index { bottom: 25px; }

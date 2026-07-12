@@ -600,6 +600,10 @@ body { background: var(--paper); }
 .inhouse-copy > div { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 28px; }
 .inhouse-copy > div span { padding: 7px 9px; border: 1px solid var(--detail-line); color: #5f7180; font: 500 8px var(--mono); letter-spacing: .05em; }
 
+.contractor-theme .inhouse-signature { padding-bottom: 0; }
+.contractor-theme .inhouse-copy { border-bottom: 0; }
+.contractor-theme .inhouse-signature + .pilot-plan { padding-top: clamp(44px, 5vw, 72px); }
+
 .pilot-plan {
   padding-top: clamp(76px, 8vw, 114px);
   padding-bottom: clamp(78px, 9vw, 124px);
