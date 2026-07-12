@@ -39,66 +39,71 @@ document.querySelectorAll('[data-about-link]').forEach((link) => link.addEventLi
   trackEvent('about_page_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
 }));
 
-const managedFlipCards = [...document.querySelectorAll('[data-flip-card]')];
 const preciseHover = window.matchMedia('(hover: hover) and (pointer: fine)');
-managedFlipCards.forEach((card) => {
-  const front = card.querySelector('.managed-card-front');
-  const back = card.querySelector('.managed-card-back');
-  const openButton = front?.querySelector('.managed-card-toggle');
-  const closeButton = back?.querySelector('.managed-card-close');
-  if (!front || !back || !openButton || !closeButton) return;
+const initManagedFlipCards = () => {
+  document.querySelectorAll('[data-flip-card]').forEach((card) => {
+    if (card.dataset.flipReady === 'true') return;
+    const front = card.querySelector('.managed-card-front');
+    const back = card.querySelector('.managed-card-back');
+    const openButton = front?.querySelector('.managed-card-toggle');
+    const closeButton = back?.querySelector('.managed-card-close');
+    if (!front || !back || !openButton || !closeButton) return;
+    card.dataset.flipReady = 'true';
 
-  const setFaceState = (flipped, focusTarget = null) => {
-    const activeFace = flipped ? back : front;
-    const inactiveFace = flipped ? front : back;
-    card.classList.toggle('is-flipped', flipped);
-    openButton.setAttribute('aria-expanded', String(flipped));
-    activeFace.setAttribute('aria-hidden', 'false');
-    activeFace.removeAttribute('inert');
-    if (focusTarget) focusTarget.focus({ preventScroll: true });
-    inactiveFace.setAttribute('aria-hidden', 'true');
-    inactiveFace.setAttribute('inert', '');
-  };
+    const setFaceState = (flipped, focusTarget = null) => {
+      const activeFace = flipped ? back : front;
+      const inactiveFace = flipped ? front : back;
+      card.classList.toggle('is-flipped', flipped);
+      openButton.setAttribute('aria-expanded', String(flipped));
+      activeFace.setAttribute('aria-hidden', 'false');
+      activeFace.removeAttribute('inert');
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
+      inactiveFace.setAttribute('aria-hidden', 'true');
+      inactiveFace.setAttribute('inert', '');
+    };
 
-  const closeCard = (returnFocus = false) => {
-    card.dataset.pinned = 'false';
-    if (card.matches(':hover')) card.dataset.hoverClosed = 'true';
-    setFaceState(false, returnFocus ? openButton : null);
-  };
+    const closeCard = (returnFocus = false) => {
+      card.dataset.pinned = 'false';
+      if (card.matches(':hover')) card.dataset.hoverClosed = 'true';
+      setFaceState(false, returnFocus ? openButton : null);
+    };
 
-  card.addEventListener('pointerenter', (event) => {
-    if (event.pointerType !== 'mouse'
-      || !preciseHover.matches
-      || window.innerWidth <= 850
-      || card.matches(':focus-within')
-      || card.dataset.pinned === 'true'
-      || card.dataset.hoverClosed === 'true') return;
-    setFaceState(true);
-  });
-  card.addEventListener('pointerleave', (event) => {
-    if (event.pointerType !== 'mouse') return;
-    delete card.dataset.hoverClosed;
-    if (card.dataset.pinned !== 'true' && !card.matches(':focus-within')) setFaceState(false);
-  });
-  openButton.addEventListener('click', () => {
-    card.dataset.pinned = 'true';
-    setFaceState(true, closeButton);
-    trackEvent('managed_card_open', { service: openButton.getAttribute('aria-controls') });
-  });
-  closeButton.addEventListener('click', () => closeCard(true));
-  card.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || !card.classList.contains('is-flipped')) return;
-    event.preventDefault();
-    closeCard(true);
-  });
-  card.addEventListener('focusout', () => {
-    window.requestAnimationFrame(() => {
-      if (card.dataset.pinned !== 'true'
-        && !card.matches(':hover')
-        && !card.matches(':focus-within')) setFaceState(false);
+    card.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse'
+        || !preciseHover.matches
+        || window.innerWidth <= 850
+        || card.matches(':focus-within')
+        || card.dataset.pinned === 'true'
+        || card.dataset.hoverClosed === 'true') return;
+      setFaceState(true);
+    });
+    card.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      delete card.dataset.hoverClosed;
+      if (card.dataset.pinned !== 'true' && !card.matches(':focus-within')) setFaceState(false);
+    });
+    openButton.addEventListener('click', () => {
+      card.dataset.pinned = 'true';
+      setFaceState(true, closeButton);
+      trackEvent('managed_card_open', { service: openButton.getAttribute('aria-controls') });
+    });
+    closeButton.addEventListener('click', () => closeCard(true));
+    card.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !card.classList.contains('is-flipped')) return;
+      event.preventDefault();
+      closeCard(true);
+    });
+    card.addEventListener('focusout', () => {
+      window.requestAnimationFrame(() => {
+        if (card.dataset.pinned !== 'true'
+          && !card.matches(':hover')
+          && !card.matches(':focus-within')) setFaceState(false);
+      });
     });
   });
-});
+};
+initManagedFlipCards();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initManagedFlipCards, { once: true });
 
 const deferredVideos = [...document.querySelectorAll('video source[data-src]')]
   .map((source) => source.closest('video'))

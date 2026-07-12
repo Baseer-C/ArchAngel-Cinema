@@ -222,14 +222,48 @@ body { background: var(--paper); }
 .contractor-theme .scope-rail span { border-color: rgba(23,33,39,.18); }
 .scope-rail span:last-child { border-right: 0; }
 
+.contractor-zero-risk .eyebrow span { background: var(--detail-accent); }
+.contractor-zero-risk .brand-seal {
+  background: #eee7dc;
+  box-shadow: inset 4px 0 0 var(--detail-accent);
+}
+.contractor-zero-risk .offer-grid b { color: var(--detail-accent); }
+.contractor-theme .detail-visual > span {
+  left: 12px;
+  bottom: 10px;
+  font-size: 6px;
+  letter-spacing: .055em;
+}
+.contractor-theme .example-note {
+  top: 11px;
+  left: 11px;
+  padding: 5px 6px;
+  font-size: 6px;
+  letter-spacing: .055em;
+}
+
 .contractor-client-proof {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(190px,.52fr) 1.05fr 1fr;
   gap: clamp(26px,4vw,58px);
   align-items: stretch;
   padding-top: clamp(46px,5vw,70px);
   padding-bottom: clamp(46px,5vw,70px);
-  border-bottom: 1px solid var(--detail-line);
+  color: #f5f8fb;
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+.contractor-client-proof::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 86% 18%, rgba(217,154,85,.16), transparent 27%),
+    linear-gradient(135deg,#10181d,#26343b);
 }
 .contractor-client-proof-image {
   position: relative;
@@ -276,13 +310,13 @@ body { background: var(--paper); }
 .contractor-client-proof-copy > p:not(.eyebrow) {
   max-width: 610px;
   margin: 17px 0;
-  color: #526475;
+  color: rgba(238,244,247,.7);
   font-size: 14px;
   line-height: 1.65;
 }
 .contractor-client-proof-copy > a {
   align-self: flex-start;
-  color: var(--detail-dark);
+  color: #fff;
   font: 600 10px var(--mono);
   letter-spacing: .04em;
   text-decoration: none;
@@ -295,16 +329,16 @@ body { background: var(--paper); }
   flex-direction: column;
   justify-content: center;
   padding-left: clamp(22px,3vw,42px);
-  border-left: 1px solid var(--detail-line);
+  border-left: 1px solid rgba(255,255,255,.18);
 }
 .contractor-client-proof-evidence blockquote {
   margin: 0;
-  color: var(--detail-dark);
+  color: #fff;
   font: 400 clamp(18px,1.65vw,24px)/1.35 "DM Serif Display",serif;
 }
 .contractor-client-proof-evidence cite {
   margin-top: 10px;
-  color: #6b7b87;
+  color: rgba(238,244,247,.58);
   font: 500 8px/1.5 var(--mono);
   font-style: normal;
   letter-spacing: .04em;
@@ -314,29 +348,24 @@ body { background: var(--paper); }
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin-top: 18px;
-  border-top: 1px solid var(--detail-line);
-  border-bottom: 1px solid var(--detail-line);
+  border-top: 1px solid rgba(255,255,255,.18);
+  border-bottom: 1px solid rgba(255,255,255,.18);
 }
 .contractor-proof-stats a {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 10px 10px 10px 0;
-  color: var(--detail-dark);
+  min-height: 52px;
+  padding: 13px 11px;
+  color: #fff;
   text-decoration: none;
+  transition: background .2s ease, color .2s ease;
 }
-.contractor-proof-stats a + a { padding-left: 12px; border-left: 1px solid var(--detail-line); }
+.contractor-proof-stats a + a { border-left: 1px solid rgba(255,255,255,.18); }
+.contractor-proof-stats a::after { content: "↗"; margin-left: auto; color: var(--detail-accent); font: 600 11px var(--mono); }
+.contractor-proof-stats a:hover { background: rgba(255,255,255,.07); }
 .contractor-proof-stats strong { font-size: 21px; letter-spacing: -.05em; }
-.contractor-proof-stats span { color: #6a7c89; font: 500 7px var(--mono); letter-spacing: .06em; }
-.contractor-client-proof-evidence > small {
-  max-width: 520px;
-  margin-top: 12px;
-  color: #74818a;
-  font: 500 7px/1.55 var(--mono);
-  letter-spacing: .025em;
-  text-transform: uppercase;
-}
-
+.contractor-proof-stats span { color: rgba(238,244,247,.58); font: 500 7px var(--mono); letter-spacing: .06em; }
 .video-showcase {
   padding-top: clamp(74px, 8vw, 112px);
   padding-bottom: clamp(78px, 9vw, 124px);
@@ -501,6 +530,43 @@ body { background: var(--paper); }
   letter-spacing: -.055em;
 }
 .service-grid p { margin: 0; color: rgba(236,244,248,.65); font-size: 14px; line-height: 1.6; }
+.service-grid .managed-card {
+  display: block;
+  min-height: 340px;
+  padding: 0;
+  perspective: 1200px;
+  background: transparent;
+  transform: none;
+}
+.service-grid .managed-card:hover { background: transparent; transform: none; }
+.service-grid .managed-card-inner,
+.service-grid .managed-card-face { min-height: 340px; }
+.service-grid .managed-card-face { padding: 22px clamp(18px,2vw,30px) 26px; }
+.contractor-theme .service-grid .managed-card-back {
+  background:
+    radial-gradient(circle at 86% 16%, rgba(217,154,85,.16), transparent 30%),
+    linear-gradient(145deg, rgba(57,48,40,.99), rgba(16,25,30,.99));
+  box-shadow: inset 0 0 0 1px rgba(217,154,85,.24);
+}
+.service-grid .managed-card-back h3 {
+  max-width: none;
+  margin: 16px 0 14px;
+  font-size: clamp(21px,1.75vw,27px);
+  line-height: 1.03;
+}
+.service-grid .managed-card-back li { color: rgba(239,246,251,.76); }
+.service-grid .managed-card-back li::before { color: var(--detail-accent); }
+.service-grid .managed-card-outcome {
+  margin: 13px 0 0;
+  color: var(--detail-accent);
+  font: 500 8px/1.5 var(--mono);
+  letter-spacing: .06em;
+}
+.service-grid .managed-card-toggle:hover,
+.service-grid .managed-card-toggle:focus-visible { border-color: var(--detail-accent); color: var(--detail-accent); }
+@media (min-width:851px) and (hover:hover) and (pointer:fine) {
+  .service-grid .managed-card-front .managed-card-toggle { pointer-events: auto; }
+}
 .ownership-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr) 1.55fr;
@@ -729,6 +795,17 @@ body { background: var(--paper); }
 .contractor-theme .inhouse-signature { padding-bottom: 0; }
 .contractor-theme .inhouse-copy { border-bottom: 0; }
 .contractor-theme .inhouse-signature + .pilot-plan { padding-top: clamp(44px, 5vw, 72px); }
+.contractor-theme .pilot-plan { padding-bottom: clamp(48px,5vw,72px); }
+
+.contractor-founder-wrap { padding-bottom: clamp(48px,6vw,82px); }
+.contractor-founder {
+  margin-top: 0;
+  border-color: #cbbda9;
+  background: linear-gradient(120deg,#e8e0d2,#f8f5ef 68%);
+  box-shadow: 10px 10px 0 #d8cebf;
+}
+.contractor-founder .eyebrow span { background: var(--detail-accent); }
+.contractor-founder .method-founder-link:hover { background: var(--detail-accent); }
 
 .pilot-plan {
   padding-top: clamp(76px, 8vw, 114px);
@@ -826,7 +903,7 @@ body { background: var(--paper); }
   .contractor-theme .scope-rail span { border-bottom-color: rgba(23,33,39,.18); }
   .contractor-client-proof { grid-template-columns: .72fr 1.28fr; }
   .contractor-client-proof-image { min-height: 300px; }
-  .contractor-client-proof-evidence { grid-column: 1 / -1; padding: 24px 0 0; border-top: 1px solid var(--detail-line); border-left: 0; }
+  .contractor-client-proof-evidence { grid-column: 1 / -1; padding: 24px 0 0; border-top: 1px solid rgba(255,255,255,.18); border-left: 0; }
   .dealer-work,
   .project-showcase,
   .inhouse-signature { grid-template-columns: 1fr; }
@@ -862,6 +939,9 @@ body { background: var(--paper); }
   .service-grid article,
   .service-grid article:nth-child(2) { min-height: 220px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.16); }
   .service-grid article:last-child { border-bottom: 0; }
+  .service-grid .managed-card,
+  .service-grid .managed-card-inner,
+  .service-grid .managed-card-face { min-height: 360px; }
   .ownership-strip { grid-template-columns: 1fr; }
   .ownership-strip span,
   .ownership-strip span:nth-child(2),
