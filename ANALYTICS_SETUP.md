@@ -10,7 +10,7 @@
 
 The site sends these events automatically whenever `window.gtag` is available:
 
-- `free_review_click`
+- `free_asset_click`
 - `generate_lead` after a confirmed successful form response
 - `video_start`
 - `video_complete`

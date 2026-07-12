@@ -3,11 +3,12 @@
   --film-progress: 0;
   --film-reveal: 0;
   position: relative;
-  height: 600vh;
-  min-height: 3600px;
+  height: 380vh;
+  min-height: 2280px;
   color: #f7f5ef;
   background: #03070b;
   isolation: isolate;
+  contain: layout paint;
 }
 
 .film-sticky {
@@ -46,6 +47,8 @@
   object-position: center center;
   transform: scale(calc(1.025 + var(--film-progress) * .035));
   will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .film-video {
@@ -99,7 +102,7 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  transform: translate3d(0, calc(var(--film-progress) * 5vh), 0);
+  transform: translate3d(0, calc(var(--film-progress) * 3vh), 0);
   will-change: transform;
 }
 
@@ -111,7 +114,7 @@
   opacity: 0;
   transform: translate3d(0, 34px, 0);
   filter: blur(8px);
-  transition: opacity .55s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1), filter .7s ease;
+  transition: opacity .34s cubic-bezier(.22,.61,.36,1), transform .48s cubic-bezier(.22,.61,.36,1), filter .42s ease;
 }
 
 .film-copy p {
@@ -168,7 +171,7 @@
 .film-skip { position: absolute; z-index: 7; right: clamp(22px, 4vw, 68px); top: 70px; color: rgba(255,255,255,.72); font: 500 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 
 @media (max-width: 850px) {
-  .scroll-film { height: 480vh; min-height: 2800px; }
+  .scroll-film { height: 340vh; min-height: 2040px; }
   .film-sticky { min-height: 540px; }
   .film-media { inset: calc((1 - var(--film-reveal)) * 10vh) calc((1 - var(--film-reveal)) * 5vw); }
   .film-poster, .film-video { object-position: 53% center; }
@@ -221,8 +224,6 @@
 .film-actions .button-primary:hover { background: #d95018; }
 .film-actions .text-link { border-color: #5c93ff; }
 
-.scroll-film { height: 500vh; min-height: 3000px; }
-
 .film-problem {
   position: absolute;
   z-index: 6;
@@ -266,10 +267,6 @@
   .film-problem i { text-align: center; font-size: 8px; }
 }
 
-@media (max-width: 850px) {
-  .scroll-film { height: 400vh; min-height: 2300px; }
-}
-
 @media (min-width: 2200px) {
   .film-copy {
     left: 8vw;
@@ -293,8 +290,4 @@
   .film-actions { margin-top: 18px; }
   .film-actions .text-link { display: none; }
   .film-time { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scroll-film { height: 100svh; min-height: 680px; }
 }

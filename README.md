@@ -11,10 +11,12 @@ Start with [`SITE_MANAGEMENT.md`](SITE_MANAGEMENT.md). It covers editing, local 
 Run from this directory:
 
 ```bash
-python3 -m http.server 4173
+node tools/preview-server.mjs 4173
 ```
 
 Open `http://localhost:4173`.
+
+Use this preview server instead of `python3 -m http.server`. It supports HTTP byte ranges, which the homepage scroll video needs for accurate seeking.
 
 ## Before publishing
 

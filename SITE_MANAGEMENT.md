@@ -32,6 +32,7 @@ cinematic-scroll.css          Homepage scroll-film styles
 motion.css                    Motion and responsive animation rules
 main.js                       Navigation, scroll video, forms, and analytics events
 assets/                       Images, logos, posters, and videos
+tools/preview-server.mjs      Zero-dependency local server with video byte-range support
 FORM_SETUP.md                 Formspree connection instructions
 ANALYTICS_SETUP.md            GA4, Search Console, and Clarity instructions
 SITE_MANAGEMENT.md            This handbook
@@ -54,7 +55,7 @@ From Terminal:
 
 ```bash
 cd "/Volumes/1 TB/Business/Website/archangel-site"
-python3 -m http.server 4173
+node tools/preview-server.mjs 4173
 ```
 
 Open:
@@ -66,6 +67,8 @@ http://localhost:4173/contractors/
 ```
 
 Stop the preview with `Control-C` in Terminal.
+
+Do not use `python3 -m http.server` to judge the scroll film. That server does not return HTTP byte ranges, so the browser cannot seek through the video reliably. S3 and CloudFront do support byte ranges.
 
 ## GitHub workflow
 
@@ -250,4 +253,3 @@ If S3 bucket versioning is enabled, an earlier object version can also be restor
 Routine content updates should not require changes to Route 53, ACM, the S3 bucket policy, CloudFront Origin Access Control, alternate domain names, or the CloudFront Function. Do not change those settings during a normal content release.
 
 Keep S3 private. Never paste AWS credentials into source files or GitHub. Preserve all Route 53 MX, SPF, DKIM, DMARC, and other email records when changing website DNS.
-

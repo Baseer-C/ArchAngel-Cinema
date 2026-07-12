@@ -11,10 +11,10 @@ const trackEvent = (name, parameters = {}) => {
 };
 
 document.querySelectorAll('a[href="#start"]').forEach((link) => link.addEventListener('click', () => {
-  trackEvent('free_review_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
+  trackEvent('free_asset_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
 }));
 
-document.querySelectorAll('video').forEach((media) => {
+document.querySelectorAll('video:not([data-scroll-video])').forEach((media) => {
   media.addEventListener('play', () => trackEvent('video_start', { page_path: window.location.pathname }), { once: true });
   media.addEventListener('ended', () => trackEvent('video_complete', { page_path: window.location.pathname }));
 });
@@ -30,6 +30,73 @@ window.addEventListener('resize', updateMobileCta);
 updateMobileCta();
 
 const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const formCtas = [...document.querySelectorAll('a[href="#start"]')]
+  .filter((link) => link.matches('.button, .nav-cta, .mobile-cta'));
+
+if (motionAllowed && formCtas.length) {
+  const motionClasses = ['cta-bounce', 'cta-tilt', 'cta-pulse', 'cta-glint', 'cta-orbit'];
+  let shuffleIndex = 0;
+  let shuffleTimer = 0;
+  let cleanupTimer = 0;
+
+  const clearCtaMotion = (target) => {
+    if (!target) return;
+    target.classList.remove('is-cta-shuffling', ...motionClasses);
+  };
+
+  const isVisibleCta = (target) => {
+    const style = window.getComputedStyle(target);
+    const rect = target.getBoundingClientRect();
+    return style.display !== 'none'
+      && style.visibility !== 'hidden'
+      && Number(style.opacity) > 0
+      && rect.width > 0
+      && rect.height > 0
+      && rect.bottom > 0
+      && rect.top < window.innerHeight
+      && !target.matches(':hover, :focus-visible');
+  };
+
+  const runCtaShuffle = () => {
+    window.clearTimeout(cleanupTimer);
+    formCtas.forEach(clearCtaMotion);
+
+    if (!document.hidden) {
+      const visibleCtas = formCtas.filter(isVisibleCta);
+      if (visibleCtas.length) {
+        const target = visibleCtas[shuffleIndex % visibleCtas.length];
+        const motion = motionClasses[shuffleIndex % motionClasses.length];
+        target.classList.add('is-cta-shuffling', motion);
+        cleanupTimer = window.setTimeout(() => clearCtaMotion(target), 1050);
+        shuffleIndex += 1;
+      }
+    }
+
+    const nextDelay = 3300 + (shuffleIndex % 3) * 550;
+    shuffleTimer = window.setTimeout(runCtaShuffle, nextDelay);
+  };
+
+  formCtas.forEach((target) => {
+    target.classList.add('cta-motion-ready');
+    target.addEventListener('pointerenter', () => clearCtaMotion(target), { passive: true });
+    target.addEventListener('focus', () => clearCtaMotion(target));
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      window.clearTimeout(shuffleTimer);
+      window.clearTimeout(cleanupTimer);
+      formCtas.forEach(clearCtaMotion);
+    } else {
+      window.clearTimeout(shuffleTimer);
+      shuffleTimer = window.setTimeout(runCtaShuffle, 900);
+    }
+  });
+
+  shuffleTimer = window.setTimeout(runCtaShuffle, 2100);
+}
+
 if (motionAllowed) {
   document.body.classList.add('js-motion');
   const revealObserver = new IntersectionObserver((entries) => {
@@ -71,7 +138,9 @@ if (scrollFilm && motionAllowed) {
   let filmFrame = 0;
   let targetProgress = 0;
   let renderedProgress = 0;
-  let lastRequestedTime = -1;
+  let pendingVideoTime = 0;
+  let seekFrame = 0;
+  let lastFrameTime = performance.now();
 
   const formatTime = (seconds) => {
     const safeSeconds = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
@@ -80,22 +149,41 @@ if (scrollFilm && motionAllowed) {
     return `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
   };
 
-  const renderScrollFilm = () => {
+  const commitVideoSeek = () => {
+    seekFrame = 0;
+    if (!video?.duration || video.readyState < 1 || video.seeking) return;
+    const nextTime = Math.min(video.duration - 0.025, Math.max(0, pendingVideoTime));
+    if (Math.abs(video.currentTime - nextTime) < 1 / 40) return;
+    video.currentTime = nextTime;
+  };
+
+  const scheduleVideoSeek = () => {
+    if (!seekFrame) seekFrame = window.requestAnimationFrame(commitVideoSeek);
+  };
+
+  const updateFilmStage = (progress) => {
+    const stage = progress < 0.2 ? 0 : progress < 0.46 ? 1 : progress < 0.72 ? 2 : 3;
+    scrollFilm.dataset.stage = String(stage);
+    if (filmNumber) filmNumber.textContent = String(stage + 1).padStart(2, '0');
+  };
+
+  const renderScrollFilm = (now) => {
+    const elapsed = Math.min(50, Math.max(8, now - lastFrameTime));
+    lastFrameTime = now;
     const delta = targetProgress - renderedProgress;
-    renderedProgress += delta * 0.16;
+    const smoothing = 1 - Math.exp(-elapsed / 62);
+    renderedProgress += delta * smoothing;
     if (Math.abs(delta) < 0.0004) renderedProgress = targetProgress;
 
     const reveal = Math.min(1, renderedProgress / 0.14);
     scrollFilm.style.setProperty('--film-progress', renderedProgress.toFixed(4));
     scrollFilm.style.setProperty('--film-reveal', reveal.toFixed(4));
+    updateFilmStage(renderedProgress);
 
     if (video?.duration) {
-      const requestedTime = Math.min(video.duration - 0.025, video.duration * renderedProgress);
-      if (Math.abs(requestedTime - lastRequestedTime) >= 1 / 30) {
-        video.currentTime = requestedTime;
-        lastRequestedTime = requestedTime;
-        if (filmTime) filmTime.textContent = formatTime(requestedTime);
-      }
+      pendingVideoTime = Math.min(video.duration - 0.025, video.duration * renderedProgress);
+      scheduleVideoSeek();
+      if (filmTime) filmTime.textContent = formatTime(pendingVideoTime);
     }
 
     if (renderedProgress !== targetProgress) {
@@ -109,9 +197,6 @@ if (scrollFilm && motionAllowed) {
     const rect = scrollFilm.getBoundingClientRect();
     const track = Math.max(scrollFilm.offsetHeight - window.innerHeight, 1);
     targetProgress = Math.min(1, Math.max(0, -rect.top / track));
-    const stage = targetProgress < 0.18 ? 0 : targetProgress < 0.43 ? 1 : targetProgress < 0.7 ? 2 : 3;
-    scrollFilm.dataset.stage = String(stage);
-    if (filmNumber) filmNumber.textContent = String(stage + 1).padStart(2, '0');
     if (!filmFrame) filmFrame = window.requestAnimationFrame(renderScrollFilm);
   };
 
@@ -125,6 +210,7 @@ if (scrollFilm && motionAllowed) {
     if (filmDuration) filmDuration.textContent = formatTime(video.duration);
     updateScrollFilm();
   });
+  video?.addEventListener('seeked', scheduleVideoSeek);
   video?.addEventListener('loadeddata', async () => {
     scrollFilm.classList.add('is-video-ready');
     try {
@@ -144,11 +230,13 @@ if (scrollFilm && motionAllowed) {
 menuToggle?.addEventListener('click', () => {
   const open = header.classList.toggle('menu-open');
   menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
 });
 
 document.querySelectorAll('.site-nav a').forEach((link) => link.addEventListener('click', () => {
   header.classList.remove('menu-open');
   menuToggle?.setAttribute('aria-expanded', 'false');
+  menuToggle?.setAttribute('aria-label', 'Open menu');
 }));
 
 function selectVertical(value) {
