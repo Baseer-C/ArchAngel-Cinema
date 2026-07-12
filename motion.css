@@ -1,0 +1,5 @@
+/* Scroll direction and pacing are intentionally quiet: the work stays legible while the page feels alive. */
+[data-parallax] { will-change: transform; }
+.js-motion .scroll-reveal { opacity: 0; transform: translate3d(0, 28px, 0); transition: opacity .75s cubic-bezier(.22,.61,.36,1), transform .75s cubic-bezier(.22,.61,.36,1); }
+.js-motion .scroll-reveal.is-visible { opacity: 1; transform: translate3d(0, 0, 0); }
+@media (prefers-reduced-motion: reduce) { [data-parallax] { transform: none !important; } .js-motion .scroll-reveal { opacity: 1; transform: none; transition: none; } }
