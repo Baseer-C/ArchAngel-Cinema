@@ -21,8 +21,7 @@ document.querySelectorAll('video:not([data-scroll-video])').forEach((media) => {
 
 const updateMobileCta = () => {
   if (!mobileCta) return;
-  const film = document.querySelector('[data-scroll-film]');
-  const trigger = film ? Math.max(360, film.offsetHeight - window.innerHeight * 1.2) : Math.max(280, window.innerHeight * 0.55);
+  const trigger = Math.max(320, window.innerHeight * 0.6);
   mobileCta.classList.toggle('is-visible', window.scrollY > trigger);
 };
 window.addEventListener('scroll', updateMobileCta, { passive: true });
@@ -46,16 +45,23 @@ if (motionAllowed && formCtas.length) {
   };
 
   const isVisibleCta = (target) => {
-    const style = window.getComputedStyle(target);
     const rect = target.getBoundingClientRect();
-    return style.display !== 'none'
-      && style.visibility !== 'hidden'
-      && Number(style.opacity) > 0
-      && rect.width > 0
-      && rect.height > 0
-      && rect.bottom > 0
-      && rect.top < window.innerHeight
-      && !target.matches(':hover, :focus-visible');
+    if (rect.width <= 0
+      || rect.height <= 0
+      || rect.bottom <= 0
+      || rect.top >= window.innerHeight
+      || target.matches(':hover, :focus-visible')) return false;
+
+    let current = target;
+    while (current && current !== document.documentElement) {
+      const style = window.getComputedStyle(current);
+      if (style.display === 'none'
+        || style.visibility === 'hidden'
+        || Number(style.opacity) < 0.15) return false;
+      current = current.parentElement;
+    }
+
+    return true;
   };
 
   const runCtaShuffle = () => {
@@ -68,12 +74,12 @@ if (motionAllowed && formCtas.length) {
         const target = visibleCtas[shuffleIndex % visibleCtas.length];
         const motion = motionClasses[shuffleIndex % motionClasses.length];
         target.classList.add('is-cta-shuffling', motion);
-        cleanupTimer = window.setTimeout(() => clearCtaMotion(target), 1050);
+        cleanupTimer = window.setTimeout(() => clearCtaMotion(target), 1300);
         shuffleIndex += 1;
       }
     }
 
-    const nextDelay = 3300 + (shuffleIndex % 3) * 550;
+    const nextDelay = 2550 + (shuffleIndex % 3) * 350;
     shuffleTimer = window.setTimeout(runCtaShuffle, nextDelay);
   };
 
@@ -94,7 +100,7 @@ if (motionAllowed && formCtas.length) {
     }
   });
 
-  shuffleTimer = window.setTimeout(runCtaShuffle, 2100);
+  shuffleTimer = window.setTimeout(runCtaShuffle, 850);
 }
 
 if (motionAllowed) {
