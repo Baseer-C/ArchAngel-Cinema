@@ -27,9 +27,11 @@ index.html                    Homepage
 dealerships/index.html        Dealership landing page
 contractors/index.html        Contractor landing page
 proof/index.html              Selected client work and case studies
+about/index.html              Short founder biography
 styles.css                    Shared site styles
 details.css                   Niche-page styles
 proof.css                     Proof-page and case-study styles
+about.css                     Founder-page styles
 cinematic-scroll.css          Homepage scroll-film styles
 motion.css                    Motion and responsive animation rules
 main.js                       Navigation, scroll video, forms, and analytics events
@@ -45,7 +47,7 @@ SITE_MANAGEMENT.md            This handbook
 1. Open `/Volumes/1 TB/Business/Website/archangel-site` in the code editor.
 2. Make the smallest necessary change.
 3. Preview the site locally.
-4. Test the homepage and both niche pages.
+4. Test the homepage, founder page, proof page, and both niche pages.
 5. Commit and push the change to GitHub.
 6. Upload the changed production files to the S3 bucket root.
 7. Invalidate the affected CloudFront paths.
@@ -67,6 +69,7 @@ http://localhost:4173/
 http://localhost:4173/dealerships/
 http://localhost:4173/contractors/
 http://localhost:4173/proof/
+http://localhost:4173/about/
 ```
 
 Stop the preview with `Control-C` in Terminal.
@@ -101,11 +104,17 @@ The following files and folders must be directly at the bucket root:
 ```text
 index.html
 styles.css
+details.css
+proof.css
+about.css
+cinematic-scroll.css
+motion.css
 main.js
 assets/
 dealerships/
 contractors/
 proof/
+about/
 ```
 
 Do not upload the enclosing `archangel-site` folder. A path such as `archangel-site/index.html` is one level too deep and will cause CloudFront errors.
@@ -161,8 +170,10 @@ Common paths:
 /dealerships/*
 /contractors/*
 /proof/*
+/about/*
 /styles.css
 /proof.css
+/about.css
 /main.js
 /assets/proof/*
 ```
@@ -232,7 +243,7 @@ Analytics setup is documented in `ANALYTICS_SETUP.md`. After analytics changes, 
 
 Before declaring a release complete, verify:
 
-- `/`, `/dealerships/`, `/contractors/`, and `/proof/` load over HTTPS.
+- `/`, `/dealerships/`, `/contractors/`, `/proof/`, and `/about/` load over HTTPS.
 - Navigation and calls to action reach the correct sections.
 - Videos play without a download or permission error.
 - Images and fonts load without visible layout shifts.
