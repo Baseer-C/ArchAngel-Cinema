@@ -6,31 +6,78 @@ const form = document.querySelector('#inquiry-form');
 const status = document.querySelector('#form-status');
 const initialVertical = vertical?.value || 'Dealerships';
 const mobileCta = document.querySelector('.mobile-cta');
+const floatingCtaZones = document.querySelectorAll('[data-floating-cta-zone]');
+const activeFloatingCtaZones = new Set();
 const trackEvent = (name, parameters = {}) => {
   if (typeof window.gtag === 'function') window.gtag('event', name, parameters);
 };
 
-document.querySelectorAll('a[href="#start"]').forEach((link) => link.addEventListener('click', () => {
+document.querySelectorAll('a[href*="#start"]').forEach((link) => link.addEventListener('click', () => {
   trackEvent('free_asset_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
 }));
 
 document.querySelectorAll('video:not([data-scroll-video])').forEach((media) => {
-  media.addEventListener('play', () => trackEvent('video_start', { page_path: window.location.pathname }), { once: true });
-  media.addEventListener('ended', () => trackEvent('video_complete', { page_path: window.location.pathname }));
+  const videoName = media.dataset.videoName || 'unnamed_video';
+  media.addEventListener('play', () => trackEvent('video_start', { page_path: window.location.pathname, video_name: videoName }), { once: true });
+  media.addEventListener('ended', () => trackEvent('video_complete', { page_path: window.location.pathname, video_name: videoName }));
 });
+
+document.querySelectorAll('[data-proof-link]').forEach((link) => link.addEventListener('click', () => {
+  trackEvent('proof_page_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
+}));
+
+document.querySelectorAll('[data-social-proof]').forEach((link) => link.addEventListener('click', () => {
+  trackEvent('social_proof_click', { page_path: window.location.pathname, platform: link.dataset.socialProof });
+}));
+
+const deferredVideos = [...document.querySelectorAll('video source[data-src]')]
+  .map((source) => source.closest('video'))
+  .filter(Boolean);
+const hydrateVideo = (media) => {
+  if (media.dataset.sourceReady === 'true') return;
+  media.querySelectorAll('source[data-src]').forEach((source) => {
+    source.src = source.dataset.src;
+    source.removeAttribute('data-src');
+  });
+  media.dataset.sourceReady = 'true';
+  media.load();
+};
+if ('IntersectionObserver' in window) {
+  const mediaObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      hydrateVideo(entry.target);
+      mediaObserver.unobserve(entry.target);
+    });
+  }, { rootMargin: '320px 0px' });
+  deferredVideos.forEach((media) => mediaObserver.observe(media));
+} else {
+  deferredVideos.forEach(hydrateVideo);
+}
 
 const updateMobileCta = () => {
   if (!mobileCta) return;
   const trigger = Math.max(320, window.innerHeight * 0.6);
-  mobileCta.classList.toggle('is-visible', window.scrollY > trigger);
+  mobileCta.classList.toggle('is-visible', window.scrollY > trigger && activeFloatingCtaZones.size === 0);
 };
 window.addEventListener('scroll', updateMobileCta, { passive: true });
 window.addEventListener('resize', updateMobileCta);
 updateMobileCta();
 
+if (mobileCta && floatingCtaZones.length && 'IntersectionObserver' in window) {
+  const floatingCtaObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) activeFloatingCtaZones.add(entry.target);
+      else activeFloatingCtaZones.delete(entry.target);
+    });
+    updateMobileCta();
+  }, { threshold: 0.04 });
+  floatingCtaZones.forEach((zone) => floatingCtaObserver.observe(zone));
+}
+
 const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const formCtas = [...document.querySelectorAll('a[href="#start"]')]
+const formCtas = [...document.querySelectorAll('a[href*="#start"]')]
   .filter((link) => link.matches('.button, .nav-cta, .mobile-cta'));
 
 if (motionAllowed && formCtas.length) {

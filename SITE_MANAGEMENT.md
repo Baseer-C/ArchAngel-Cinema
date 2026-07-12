@@ -26,8 +26,10 @@ GitHub is the source of truth. S3 is the deployed copy. A GitHub push does not u
 index.html                    Homepage
 dealerships/index.html        Dealership landing page
 contractors/index.html        Contractor landing page
+proof/index.html              Selected client work and case studies
 styles.css                    Shared site styles
 details.css                   Niche-page styles
+proof.css                     Proof-page and case-study styles
 cinematic-scroll.css          Homepage scroll-film styles
 motion.css                    Motion and responsive animation rules
 main.js                       Navigation, scroll video, forms, and analytics events
@@ -64,6 +66,7 @@ Open:
 http://localhost:4173/
 http://localhost:4173/dealerships/
 http://localhost:4173/contractors/
+http://localhost:4173/proof/
 ```
 
 Stop the preview with `Control-C` in Terminal.
@@ -102,6 +105,7 @@ main.js
 assets/
 dealerships/
 contractors/
+proof/
 ```
 
 Do not upload the enclosing `archangel-site` folder. A path such as `archangel-site/index.html` is one level too deep and will cause CloudFront errors.
@@ -156,9 +160,11 @@ Common paths:
 /index.html
 /dealerships/*
 /contractors/*
+/proof/*
 /styles.css
+/proof.css
 /main.js
-/assets/changed-file.mp4
+/assets/proof/*
 ```
 
 Use `/*` when a release changes several pages or shared styles. Test the CloudFront domain first, then the live domain.
@@ -226,7 +232,7 @@ Analytics setup is documented in `ANALYTICS_SETUP.md`. After analytics changes, 
 
 Before declaring a release complete, verify:
 
-- `/`, `/dealerships/`, and `/contractors/` load over HTTPS.
+- `/`, `/dealerships/`, `/contractors/`, and `/proof/` load over HTTPS.
 - Navigation and calls to action reach the correct sections.
 - Videos play without a download or permission error.
 - Images and fonts load without visible layout shifts.

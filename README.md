@@ -21,7 +21,7 @@ Use this preview server instead of `python3 -m http.server`. It supports HTTP by
 ## Before publishing
 
 1. Connect Formspree using the instructions in `FORM_SETUP.md`, then test one submission from each page.
-2. Add GA4 and Microsoft Clarity tracking snippets to the `<head>` of all three HTML pages.
+2. Add GA4 and Microsoft Clarity tracking snippets to the `<head>` of all four HTML pages.
 3. Publish production files to the S3 bucket root, then refresh the CloudFront distribution.
 4. Confirm HTTPS, redirects, forms, analytics, and mobile behavior before removing the Squarespace DNS records.
 5. Keep all public claims supportable and replace visual examples with client-approved case studies as proof becomes available.
@@ -30,4 +30,5 @@ Use this preview server instead of `python3 -m http.server`. It supports HTTP by
 
 - The homepage leads with video marketing and conversion systems, rather than cars or construction.
 - Automotive and contractor audiences are separated at the second decision point.
+- A compact homepage proof module validates execution without changing the target audience; `/proof/` holds the full case studies.
 - The site avoids unverified outcome claims. It promises controlled delivery and implementation, then routes prospects toward a decision-maker review.
