@@ -5,8 +5,9 @@
   <title>Local form contract test</title>
 </head>
 <body>
-  <form id="inquiry-form" data-endpoint="/__form-test__" method="POST" novalidate>
+  <form id="inquiry-form" data-endpoint="/__form-test__" data-cta-location="form" method="POST" novalidate>
     <input id="vertical" name="vertical" value="QA" />
+    <input type="hidden" name="offer" value="free_video_plus_custom_lead_generation_audit" />
     <input id="name" name="name" required />
     <input id="email" name="email" type="email" required />
     <input id="company" name="company" required />
@@ -17,6 +18,9 @@
   </form>
   <ol id="event-log" aria-label="Analytics events"></ol>
   <script>
+    const testScenario = new URLSearchParams(window.location.search).get('scenario');
+    if (testScenario === 'reject') document.querySelector('#inquiry-form').dataset.endpoint = '/__form-test__/reject';
+    if (testScenario === 'timeout') document.querySelector('#inquiry-form').dataset.endpoint = '/__form-test__/timeout';
     window.gtag = (...args) => {
       const entry = document.createElement('li');
       entry.textContent = JSON.stringify(args);

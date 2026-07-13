@@ -26,13 +26,33 @@ http.createServer((request, response) => {
     return;
   }
 
-  if (request.method === 'POST' && pathname === '/__form-test__') {
-    request.resume();
+  if (request.method === 'POST' && pathname.startsWith('/__form-test__')) {
+    const chunks = [];
+    request.on('data', (chunk) => chunks.push(chunk));
     request.on('end', () => {
-      response.writeHead(200, {
+      const body = Buffer.concat(chunks).toString('utf8');
+      console.log(`FORM_TEST ${pathname}\n${body}`);
+      if (pathname === '/__form-test__/reject') {
+        response.writeHead(422, {
+          'Cache-Control': 'no-store',
+          'Content-Type': 'application/json; charset=utf-8'
+        }).end('{"ok":false}');
+        return;
+      }
+      if (pathname === '/__form-test__/timeout') {
+        setTimeout(() => {
+          if (response.destroyed) return;
+          response.writeHead(200, {
+            'Cache-Control': 'no-store',
+            'Content-Type': 'application/json; charset=utf-8'
+          }).end('{"ok":true}');
+        }, 13000);
+        return;
+      }
+      setTimeout(() => response.writeHead(200, {
         'Cache-Control': 'no-store',
         'Content-Type': 'application/json; charset=utf-8'
-      }).end('{"ok":true}');
+      }).end('{"ok":true}'), 250);
     });
     return;
   }

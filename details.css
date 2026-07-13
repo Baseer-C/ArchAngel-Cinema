@@ -103,6 +103,7 @@ body { background: var(--paper); }
   --detail-dark: #111a20;
   --detail-mid: #24333a;
   --detail-accent: #d99a55;
+  --detail-accent-ink: #8a5b2d;
   --detail-secondary: #718a78;
   --detail-paper: #f2eee6;
   --detail-soft: #e6ded1;
@@ -228,6 +229,77 @@ body { background: var(--paper); }
   box-shadow: inset 4px 0 0 var(--detail-accent);
 }
 .contractor-zero-risk .offer-grid b { color: var(--detail-accent); }
+.contractor-theme .detail-hero-copy .contractor-hero-pain {
+  max-width: 650px;
+  margin: 24px 0 0;
+  color: #fff;
+  font-size: clamp(17px, 1.45vw, 21px);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.contractor-theme .detail-hero-copy .contractor-hero-offer {
+  max-width: 650px;
+  margin: 14px 0 25px;
+  padding-left: 15px;
+  border-left: 3px solid var(--detail-accent);
+  color: rgba(241,247,251,.72);
+  font-size: 15px;
+  line-height: 1.62;
+}
+.contractor-theme .detail-hero .button-primary,
+.contractor-theme .contractor-offer-cta .button-primary,
+.contractor-theme .detail-cta .button-primary {
+  max-width: 520px;
+  white-space: normal;
+  line-height: 1.35;
+  text-align: left;
+}
+.contractor-pain-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: clamp(38px, 5vw, 66px);
+  border: 1px solid #172127;
+  background: #172127;
+  box-shadow: 10px 10px 0 #d8cebf;
+}
+.contractor-pain-strip span {
+  position: relative;
+  min-height: 104px;
+  display: flex;
+  align-items: flex-end;
+  padding: 34px 18px 18px;
+  border-right: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.78);
+  font: 500 9px/1.55 var(--mono);
+  letter-spacing: .055em;
+}
+.contractor-pain-strip span::before {
+  content: "LOSS";
+  position: absolute;
+  top: 13px;
+  left: 18px;
+  color: var(--detail-accent);
+  font: 500 7px var(--mono);
+  letter-spacing: .1em;
+}
+.contractor-pain-strip span:last-child { border-right: 0; }
+.contractor-zero-risk .contractor-pain-strip + .offer-grid { margin-top: 34px; }
+.contractor-offer-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 30px;
+  padding: 22px 0 0;
+}
+.contractor-offer-cta p {
+  max-width: 480px;
+  margin: 0;
+  color: #526475;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.contractor-offer-cta p strong { color: var(--detail-dark); }
 .contractor-theme .detail-visual > span {
   left: 12px;
   bottom: 10px;
@@ -542,6 +614,10 @@ body { background: var(--paper); }
 .service-grid .managed-card-inner,
 .service-grid .managed-card-face { min-height: 340px; }
 .service-grid .managed-card-face { padding: 22px clamp(18px,2vw,30px) 26px; }
+.contractor-theme .service-grid .managed-card-front h3 {
+  font-size: clamp(20px, 1.65vw, 27px);
+  line-height: 1.04;
+}
 .contractor-theme .service-grid .managed-card-back {
   background:
     radial-gradient(circle at 86% 16%, rgba(217,154,85,.16), transparent 30%),
@@ -591,6 +667,16 @@ body { background: var(--paper); }
   font-size: 15px;
   line-height: 1.7;
   text-align: right;
+}
+.monthly-audit-bridge {
+  max-width: 920px;
+  margin: 30px 0 0 auto;
+  padding: 16px 18px;
+  border-left: 3px solid var(--detail-accent);
+  background: rgba(255,255,255,.055);
+  color: rgba(255,255,255,.86);
+  font-size: 15px;
+  line-height: 1.65;
 }
 
 .system-visual {
@@ -875,7 +961,43 @@ body { background: var(--paper); }
 .dealership-theme .button-primary,
 .contractor-theme .button-primary { background: var(--detail-accent); }
 
+/* Contractor accessibility: preserve the warm palette with readable controls and light-section accents. */
+.contractor-theme .button-primary,
+.contractor-theme .mobile-cta {
+  color: #111a20;
+}
+.contractor-theme .detail-cta .button-primary {
+  color: #111a20;
+}
+.contractor-theme .button-primary:hover,
+.contractor-theme .button-primary:focus-visible {
+  background: #efb875;
+  color: #111a20;
+}
+.contractor-theme .detail-cta .button-primary:hover,
+.contractor-theme .detail-cta .button-primary:focus-visible {
+  background: #efb875;
+  color: #111a20;
+}
+.contractor-theme .contractor-zero-risk .offer-grid b,
+.contractor-theme .flow-card > span,
+.contractor-theme .pilot-heading h2 em,
+.contractor-theme .pilot-steps span {
+  color: var(--detail-accent-ink);
+}
+.contractor-theme .flow-card::after,
+.contractor-theme .mock-window em:last-child {
+  color: #111a20;
+}
+.contractor-theme .contractor-founder .method-founder-link:hover,
+.contractor-theme .contractor-founder .method-founder-link:hover span {
+  color: #111a20;
+}
+
 @media (max-width: 1100px) {
+  .contractor-pain-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contractor-pain-strip span:nth-child(2) { border-right: 0; }
+  .contractor-pain-strip span:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.18); }
   .service-grid { grid-template-columns: repeat(2, 1fr); }
   .service-grid article:nth-child(2) { border-right: 0; }
   .service-grid article:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.16); }
@@ -920,6 +1042,7 @@ body { background: var(--paper); }
   .ownership-strip span:nth-child(2) { border-right: 0; }
   .ownership-strip span { border-bottom: 1px solid rgba(255,255,255,.16); }
   .ownership-strip strong { border-top: 1px solid rgba(255,255,255,.16); }
+  .monthly-audit-bridge { margin-left: 0; }
   .monthly-note { text-align: left; margin-left: 0; }
   .pilot-steps { grid-template-columns: 1fr; }
   .pilot-steps article,
@@ -930,6 +1053,14 @@ body { background: var(--paper); }
 }
 
 @media (max-width: 560px) {
+  .contractor-theme .detail-hero .button-primary,
+  .contractor-theme .contractor-offer-cta .button-primary,
+  .contractor-theme .detail-cta .button-primary { width: 100%; max-width: none; }
+  .contractor-pain-strip { grid-template-columns: 1fr; box-shadow: 7px 7px 0 #d8cebf; }
+  .contractor-pain-strip span,
+  .contractor-pain-strip span:nth-child(2) { min-height: 86px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.18); }
+  .contractor-pain-strip span:last-child { border-bottom: 0; }
+  .contractor-offer-cta { align-items: stretch; flex-direction: column; }
   .detail-hero-copy small { font-size: 8px; }
   .contractor-client-proof { grid-template-columns: 1fr; gap: 24px; }
   .contractor-client-proof-image { min-height: 0; height: 250px; }

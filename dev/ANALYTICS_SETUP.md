@@ -16,8 +16,10 @@ This preserves the property's historical data and does not require a Route 53 or
 
 | Event | When it fires | Parameters | Use |
 | --- | --- | --- | --- |
-| `generate_lead` | Formspree confirms a successful inquiry | `page_path`, `vertical` | Primary key event and Ads conversion |
-| `free_asset_click` | A visitor clicks a free-asset CTA | `page_path`, `link_text` | High-intent micro-conversion |
+| `generate_lead` | Formspree confirms a successful inquiry | `page_path`, `vertical`, `cta_location` | Primary key event and Ads conversion |
+| `lead_form_attempt` | A valid form begins sending | `page_path`, `vertical`, `cta_location` | Form-delivery diagnostic |
+| `lead_form_error` | A sent form is rejected, times out, or loses the network | `page_path`, `vertical`, `cta_location`, `error_type`, optional `http_status` | Form-delivery diagnostic |
+| `free_asset_click` | A visitor clicks a free-asset CTA | `page_path`, `link_text`, `cta_location` | High-intent micro-conversion |
 | `proof_page_click` | A visitor opens the proof page | `page_path`, `link_text` | Proof interest |
 | `about_page_click` | A visitor opens the Baseer page | `page_path`, `link_text` | Founder-trust interest |
 | `managed_card_open` | A visitor explores a managed-service card | `service` | Offer interest |
@@ -76,6 +78,7 @@ The separate `AW-18168112853` destination shown in Google Tags does not need to 
 In **Admin → Data display → Custom definitions**, create event-scoped custom dimensions for:
 
 - `vertical`
+- `cta_location`
 - `video_name`
 - `platform`
 - `service`
@@ -127,4 +130,4 @@ Create a GA4 funnel exploration:
 2. `free_asset_click` or `proof_page_click`
 3. `generate_lead`
 
-Break it down by landing page, source/medium, campaign, device category, and `vertical`. For a low-volume local business, always compare the GA4 lead count with actual lead quality in Formspree or the CRM.
+Break it down by landing page, source/medium, campaign, device category, `vertical`, and `cta_location`. For a low-volume local business, always compare the GA4 lead count with actual lead quality in Formspree or the CRM.

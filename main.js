@@ -18,7 +18,11 @@ const trackEvent = (name, parameters = {}) => {
 };
 
 document.querySelectorAll('a[href*="#start"]').forEach((link) => link.addEventListener('click', () => {
-  trackEvent('free_asset_click', { page_path: window.location.pathname, link_text: link.textContent.trim() });
+  trackEvent('free_asset_click', {
+    page_path: window.location.pathname,
+    link_text: link.textContent.trim(),
+    cta_location: link.dataset.ctaLocation || 'unspecified'
+  });
 }));
 
 document.querySelectorAll('video:not([data-scroll-video])').forEach((media) => {
@@ -367,6 +371,23 @@ document.querySelectorAll('.site-nav a').forEach((link) => link.addEventListener
   menuToggle?.setAttribute('aria-label', 'Open menu');
 }));
 
+if (document.body.classList.contains('contractor-theme') && menuToggle && header) {
+  const closeContractorMenu = (returnFocus = false) => {
+    if (!header.classList.contains('menu-open')) return;
+    header.classList.remove('menu-open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', 'Open menu');
+    if (returnFocus) menuToggle.focus({ preventScroll: true });
+  };
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeContractorMenu(true);
+  });
+  document.addEventListener('pointerdown', (event) => {
+    if (!header.contains(event.target)) closeContractorMenu();
+  });
+}
+
 function selectVertical(value) {
   if (vertical) vertical.value = value;
   choices.forEach((choice) => choice.classList.toggle('active', choice.dataset.value === value));
@@ -421,12 +442,17 @@ form?.addEventListener('submit', async (event) => {
   const button = form.querySelector('button[type="submit"]');
   if (button.disabled) return;
   const submissionVertical = submission.get('vertical') || initialVertical;
+  const submissionCtaLocation = form.dataset.ctaLocation || 'form';
   const originalButtonMarkup = button.innerHTML;
   button.disabled = true;
   button.textContent = 'Sending...';
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 12000);
-  trackEvent('lead_form_attempt', { page_path: window.location.pathname, vertical: submissionVertical });
+  trackEvent('lead_form_attempt', {
+    page_path: window.location.pathname,
+    vertical: submissionVertical,
+    cta_location: submissionCtaLocation
+  });
   try {
     const response = await fetch(endpoint, { method: form.method || 'POST', headers: { Accept: 'application/json' }, body: submission, signal: controller.signal });
     if (!response.ok) {
@@ -438,7 +464,11 @@ form?.addEventListener('submit', async (event) => {
     form.reset();
     selectVertical(initialVertical);
     status.textContent = 'Received. Expect a practical next step from ArchAngel Cinema.';
-    trackEvent('generate_lead', { page_path: window.location.pathname, vertical: submissionVertical });
+    trackEvent('generate_lead', {
+      page_path: window.location.pathname,
+      vertical: submissionVertical,
+      cta_location: submissionCtaLocation
+    });
   } catch (error) {
     const errorType = error?.name === 'AbortError'
       ? 'timeout'
@@ -448,6 +478,7 @@ form?.addEventListener('submit', async (event) => {
     trackEvent('lead_form_error', {
       page_path: window.location.pathname,
       vertical: submissionVertical,
+      cta_location: submissionCtaLocation,
       error_type: errorType,
       ...(error?.status ? { http_status: error.status } : {})
     });

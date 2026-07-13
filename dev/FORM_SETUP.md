@@ -18,11 +18,13 @@ GA4 receives `lead_form_attempt` when a valid form begins sending, `lead_form_er
 
 Do not test submissions by double-clicking an HTML file. A `file:///...` page does not send the normal referrer Formspree needs and cannot submit successfully.
 
-Run the site through a local server instead:
+Run the included preview server from the site root instead:
 
-`python3 -m http.server 4173`
+`node dev/tools/preview-server.mjs 4173 .`
 
-Then test at `http://localhost:4173/`. The published HTTPS website remains the authoritative delivery test, especially when Formspree domain restrictions are enabled.
+Use `http://localhost:4173/dev/form-test.html` for the successful local contract, append `?scenario=reject` for a rejected-request check, and append `?scenario=timeout` for the 12-second timeout check. The harness prints the multipart payload so the normalized website, offer identifier, source page, and UTMs can be verified without sending a real lead.
+
+The published HTTPS website remains the authoritative delivery test, especially when Formspree domain restrictions are enabled. After publishing, send one clearly labeled test and confirm it appears in Formspree before checking `generate_lead` in GA4 Realtime or DebugView.
 
 ## When to replace Formspree with AWS
 
