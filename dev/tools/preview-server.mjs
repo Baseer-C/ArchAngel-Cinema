@@ -26,6 +26,17 @@ http.createServer((request, response) => {
     return;
   }
 
+  if (request.method === 'POST' && pathname === '/__form-test__') {
+    request.resume();
+    request.on('end', () => {
+      response.writeHead(200, {
+        'Cache-Control': 'no-store',
+        'Content-Type': 'application/json; charset=utf-8'
+      }).end('{"ok":true}');
+    });
+    return;
+  }
+
   let file = path.resolve(root, `.${pathname}`);
   if (!file.startsWith(`${root}${path.sep}`) && file !== root) {
     response.writeHead(403).end('Forbidden');

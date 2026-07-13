@@ -8,10 +8,10 @@ Start with [`SITE_MANAGEMENT.md`](SITE_MANAGEMENT.md). It covers editing, local 
 
 ## Local preview
 
-Run from this directory:
+Run from the project root:
 
 ```bash
-node tools/preview-server.mjs 4173
+node dev/tools/preview-server.mjs 4173
 ```
 
 Open `http://localhost:4173`.
@@ -25,6 +25,8 @@ Use this preview server instead of `python3 -m http.server`. It supports HTTP by
 3. Publish production files to the S3 bucket root, then refresh the CloudFront distribution.
 4. Confirm HTTPS, redirects, forms, analytics, and mobile behavior before removing the Squarespace DNS records.
 5. Keep all public claims supportable and replace visual examples with client-approved case studies as proof becomes available.
+
+Everything inside `dev/` is for local development and documentation only. Do not upload this folder to S3.
 
 ## Design rationale
 

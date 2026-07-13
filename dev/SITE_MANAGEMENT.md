@@ -36,10 +36,11 @@ cinematic-scroll.css          Homepage scroll-film styles
 motion.css                    Motion and responsive animation rules
 main.js                       Navigation, scroll video, forms, and analytics events
 assets/                       Images, logos, posters, and videos
-tools/preview-server.mjs      Zero-dependency local server with video byte-range support
-FORM_SETUP.md                 Formspree connection instructions
-ANALYTICS_SETUP.md            GA4, Search Console, and Clarity instructions
-SITE_MANAGEMENT.md            This handbook
+dev/                          Local-only documentation and development tools; never upload
+dev/tools/preview-server.mjs  Zero-dependency local server with video byte-range support
+dev/FORM_SETUP.md             Formspree connection instructions
+dev/ANALYTICS_SETUP.md        GA4, Search Console, and Clarity instructions
+dev/SITE_MANAGEMENT.md        This handbook
 ```
 
 ## Standard editing workflow
@@ -59,7 +60,7 @@ From Terminal:
 
 ```bash
 cd "/Volumes/1 TB/Business/Website/archangel-site"
-node tools/preview-server.mjs 4173
+node dev/tools/preview-server.mjs 4173
 ```
 
 Open:
@@ -117,6 +118,8 @@ proof/
 about/
 ```
 
+Do not upload `dev/`. Hidden Git metadata (`.git/` and `.gitignore`) is also local-only and should never be selected for an S3 upload.
+
 Do not upload the enclosing `archangel-site` folder. A path such as `archangel-site/index.html` is one level too deep and will cause CloudFront errors.
 
 To publish through the console:
@@ -139,7 +142,7 @@ aws s3 sync . s3://archangelcinema-production-027420445177 \
   --delete \
   --exclude ".git/*" \
   --exclude ".gitignore" \
-  --exclude "*.md"
+  --exclude "dev/*"
 ```
 
 `--delete` makes the production bucket mirror the local production files. Use it only with this dedicated website bucket and only after checking the current directory.
@@ -235,9 +238,9 @@ Upload the entire `new-page/` folder to the S3 bucket root. The CloudFront viewe
 
 ## Form and analytics checks
 
-Forms are designed to use one Formspree endpoint across all three pages. Follow `FORM_SETUP.md` whenever the endpoint or form account changes. Submit one real test from each page after any form-related release.
+Forms are designed to use one Formspree endpoint across all three pages. Follow `dev/FORM_SETUP.md` whenever the endpoint or form account changes. Submit one real test from each page after any form-related release.
 
-Analytics setup is documented in `ANALYTICS_SETUP.md`. After analytics changes, verify GA4 Realtime, the `generate_lead` event, Search Console ownership, and Microsoft Clarity.
+Analytics setup is documented in `dev/ANALYTICS_SETUP.md`. After analytics changes, verify GA4 Realtime, the `generate_lead` event, Search Console ownership, and Microsoft Clarity.
 
 ## Release checklist
 

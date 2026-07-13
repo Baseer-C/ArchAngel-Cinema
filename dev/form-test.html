@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Local form contract test</title>
+</head>
+<body>
+  <form id="inquiry-form" data-endpoint="/__form-test__" method="POST" novalidate>
+    <input id="vertical" name="vertical" value="QA" />
+    <input id="name" name="name" required />
+    <input id="email" name="email" type="email" required />
+    <input id="company" name="company" required />
+    <input id="url" name="url" />
+    <textarea id="message" name="message" required></textarea>
+    <button type="submit">Submit local QA form</button>
+    <p id="form-status" aria-live="polite"></p>
+  </form>
+  <ol id="event-log" aria-label="Analytics events"></ol>
+  <script>
+    window.gtag = (...args) => {
+      const entry = document.createElement('li');
+      entry.textContent = JSON.stringify(args);
+      document.querySelector('#event-log').append(entry);
+    };
+  </script>
+  <script src="../main.js?v=local-form-contract-test"></script>
+</body>
+</html>

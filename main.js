@@ -420,19 +420,38 @@ form?.addEventListener('submit', async (event) => {
   }
   const button = form.querySelector('button[type="submit"]');
   if (button.disabled) return;
+  const submissionVertical = submission.get('vertical') || initialVertical;
   const originalButtonMarkup = button.innerHTML;
   button.disabled = true;
   button.textContent = 'Sending...';
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 12000);
+  trackEvent('lead_form_attempt', { page_path: window.location.pathname, vertical: submissionVertical });
   try {
     const response = await fetch(endpoint, { method: form.method || 'POST', headers: { Accept: 'application/json' }, body: submission, signal: controller.signal });
-    if (!response.ok) throw new Error('Request failed');
+    if (!response.ok) {
+      const requestError = new Error('Request failed');
+      requestError.name = 'FormspreeError';
+      requestError.status = response.status;
+      throw requestError;
+    }
     form.reset();
     selectVertical(initialVertical);
     status.textContent = 'Received. Expect a practical next step from ArchAngel Cinema.';
-    trackEvent('generate_lead', { page_path: window.location.pathname, vertical: submission.get('vertical') || initialVertical });
+    trackEvent('generate_lead', { page_path: window.location.pathname, vertical: submissionVertical });
   } catch (error) {
+    const errorType = error?.name === 'AbortError'
+      ? 'timeout'
+      : error?.name === 'FormspreeError'
+        ? 'formspree_rejection'
+        : 'network';
+    trackEvent('lead_form_error', {
+      page_path: window.location.pathname,
+      vertical: submissionVertical,
+      error_type: errorType,
+      ...(error?.status ? { http_status: error.status } : {})
+    });
+    console.warn('Lead form submission failed.', { errorType, httpStatus: error?.status || null });
     status.textContent = error?.name === 'AbortError'
       ? 'The request timed out. Please try again or email partnerships@archangelcinema.com.'
       : 'The form service could not accept this request. Please try again or email partnerships@archangelcinema.com.';

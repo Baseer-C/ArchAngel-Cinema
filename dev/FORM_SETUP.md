@@ -2,7 +2,7 @@
 
 ## Recommended launch path: Formspree
 
-Use one Formspree form for all three pages. The hidden `vertical` field already identifies General, Dealerships, or Contractors.
+Use one Formspree form for all three pages. The hidden `vertical` field already identifies General, Dealerships, or Contractors. This is a dependency-free Vanilla JavaScript site, so the forms use Formspree's AJAX contract directly: multipart `FormData`, `POST`, and `Accept: application/json`. The `@formspree/ajax` CDN helper is optional and is not required for this tailored handler.
 
 1. Create a form in Formspree and copy its endpoint, such as `https://formspree.io/f/abcxyz12`.
 2. Use that endpoint as the `action` on each `#inquiry-form`.
@@ -11,6 +11,8 @@ Use one Formspree form for all three pages. The hidden `vertical` field already 
 5. Configure spam filtering and an autoresponse only after the basic delivery test passes.
 
 The forms already provide native field validation, duplicate-submit locking, a 12-second timeout, accessible status messaging, and FormData/AJAX submission. Spam protection is handled in Formspree so browser autofill cannot silently trip a client-side honeypot and discard a legitimate lead.
+
+GA4 receives `lead_form_attempt` when a valid form begins sending, `lead_form_error` if Formspree rejects or the request fails, and `generate_lead` only after Formspree returns a successful response. Do not mark the diagnostic events as conversions.
 
 ## Local testing
 
