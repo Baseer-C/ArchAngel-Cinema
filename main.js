@@ -396,14 +396,7 @@ form?.addEventListener('submit', async (event) => {
     form.reportValidity();
     return;
   }
-  const honeypot = form.querySelector('[name="_gotcha"]');
-  if (honeypot?.value) {
-    form.reset();
-    status.textContent = 'Received. We will follow up with the appropriate next step.';
-    return;
-  }
   const submission = new FormData(form);
-  submission.delete('_gotcha');
   const website = normalizeWebsite(submission.get('url'));
   if (website) submission.set('url', website);
   else submission.delete('url');

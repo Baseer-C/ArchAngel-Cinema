@@ -6,11 +6,11 @@ Use one Formspree form for all three pages. The hidden `vertical` field already 
 
 1. Create a form in Formspree and copy its endpoint, such as `https://formspree.io/f/abcxyz12`.
 2. Use that endpoint as the `action` on each `#inquiry-form`.
-3. In Formspree, restrict submissions to `archangelcinema.com` and its subdomains.
+3. In Formspree, set **Restrict to Domain** to exactly `archangelcinema.com` (no protocol, path, or `www`). The bare domain permits both `archangelcinema.com` and `www.archangelcinema.com`; restricting to `www.archangelcinema.com` sends submissions from the bare domain to Spam.
 4. Send a real test from each published page and confirm the email notification and stored submission.
 5. Configure spam filtering and an autoresponse only after the basic delivery test passes.
 
-The forms already provide native field validation, an invisible honeypot, duplicate-submit locking, a 12-second timeout, accessible status messaging, and FormData/AJAX submission.
+The forms already provide native field validation, duplicate-submit locking, a 12-second timeout, accessible status messaging, and FormData/AJAX submission. Spam protection is handled in Formspree so browser autofill cannot silently trip a client-side honeypot and discard a legitimate lead.
 
 ## Local testing
 

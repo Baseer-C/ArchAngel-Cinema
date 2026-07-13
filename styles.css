@@ -185,7 +185,6 @@
 .form-field textarea { padding: 6px 0; }
 .form-field textarea { line-height: 1.35; }
 .form-submit-row { margin-top: 8px; }
-.form-honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; }
 
 @media (max-width: 850px) {
   .offer-grid { grid-template-columns: 1fr; margin-top: 32px; }
