@@ -380,6 +380,13 @@ document.querySelector('.sound-button')?.addEventListener('click', (event) => {
   event.currentTarget.lastChild.textContent = event.currentTarget.classList.contains('playing') ? ' PAUSE' : ' PLAY';
 });
 
+const normalizeWebsite = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed.replace(/^\/+/, '')}`;
+};
+
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.className = '';
@@ -395,18 +402,26 @@ form?.addEventListener('submit', async (event) => {
     status.textContent = 'Received. We will follow up with the appropriate next step.';
     return;
   }
-  const payload = Object.fromEntries(new FormData(form).entries());
-  delete payload._gotcha;
+  const submission = new FormData(form);
+  submission.delete('_gotcha');
+  const website = normalizeWebsite(submission.get('url'));
+  if (website) submission.set('url', website);
+  else submission.delete('url');
   const campaign = new URLSearchParams(window.location.search);
   ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach((key) => {
     const value = campaign.get(key);
-    if (value) payload[key] = value;
+    if (value) submission.set(key, value);
   });
-  payload.source_page = window.location.pathname;
+  submission.set('source_page', window.location.pathname || '/');
   const configuredAction = form.getAttribute('action');
   const endpoint = form.dataset.endpoint || configuredAction;
   if (!endpoint) {
     status.textContent = 'This preview is not connected yet. Add the Formspree form ID before publishing.';
+    status.className = 'error';
+    return;
+  }
+  if (window.location.protocol === 'file:') {
+    status.textContent = 'This local file preview cannot send forms. Test it on the published site or through a local preview server.';
     status.className = 'error';
     return;
   }
@@ -418,14 +433,16 @@ form?.addEventListener('submit', async (event) => {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 12000);
   try {
-    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload), signal: controller.signal });
+    const response = await fetch(endpoint, { method: form.method || 'POST', headers: { Accept: 'application/json' }, body: submission, signal: controller.signal });
     if (!response.ok) throw new Error('Request failed');
     form.reset();
     selectVertical(initialVertical);
     status.textContent = 'Received. Expect a practical next step from ArchAngel Cinema.';
-    trackEvent('generate_lead', { page_path: window.location.pathname, vertical: payload.vertical || initialVertical });
-  } catch {
-    status.textContent = 'We could not send this yet. Please check your connection and try again.';
+    trackEvent('generate_lead', { page_path: window.location.pathname, vertical: submission.get('vertical') || initialVertical });
+  } catch (error) {
+    status.textContent = error?.name === 'AbortError'
+      ? 'The request timed out. Please try again or email partnerships@archangelcinema.com.'
+      : 'The form service could not accept this request. Please try again or email partnerships@archangelcinema.com.';
     status.className = 'error';
   } finally {
     window.clearTimeout(timeout);
