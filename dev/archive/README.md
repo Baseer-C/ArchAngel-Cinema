@@ -4,6 +4,6 @@ The construction, dealership, free-video, audit, managed-marketing, and lead-gen
 
 The complete prior implementation remains recoverable from git commit `29b9c77` (`Refine contractor conversion funnel`). The public `/contractors/` and `/dealerships/` paths now contain redirect fallbacks to `/`; production should also configure HTTP 301/308 redirects at CloudFront or the hosting layer.
 
-Unused contractor, dealership, and RDX campaign media was moved into `dev/archive/assets/` so it remains recoverable without being included in the public S3 upload.
+Unused contractor, dealership, RDX campaign media, and superseded founder portraits were moved into `dev/archive/assets/` so they remain recoverable without being included in the public S3 upload.
 
 Do not upload the `dev/` directory to production.
