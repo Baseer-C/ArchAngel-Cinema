@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const script = fs.readFileSync(new URL('../../main.js', import.meta.url), 'utf8');
+const homepage = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
 
 class FakeClassList {
   constructor() { this.values = new Set(); }
@@ -54,14 +55,6 @@ class FakeButton extends FakeElement {
   }
 }
 
-class FakeField extends FakeElement {
-  constructor(values) {
-    super();
-    this.value = '';
-    this.options = values.map((value) => ({ value }));
-  }
-}
-
 class FakeStatus extends FakeElement {}
 
 class FakeForm extends FakeElement {
@@ -82,16 +75,9 @@ class FakeForm extends FakeElement {
       ['name', 'QA Person'],
       ['email', 'qa.person@example.com'],
       ['mobile', '+1 202 555 0100'],
-      ['event_type', 'Private celebration'],
       ['event_date', '2026-10-18'],
-      ['venue_city', 'Alexandria, VA'],
-      ['coverage_hours', '4–6 hours'],
-      ['guest_count', '125'],
-      ['package_interest', 'Signature Event Story'],
       ['budget', '$1,495–$2,094'],
-      ['must_have', 'Keynote and family reactions'],
-      ['notes', 'QA only'],
-      ['referral_source', 'Google']
+      ['notes', 'QA only']
     ]);
   }
   querySelector(selector) {
@@ -128,8 +114,6 @@ class FakeEvent {
 const makeHarness = ({ response = 'success', valid = true } = {}) => {
   const form = new FakeForm();
   form.valid = valid;
-  const eventTypeField = new FakeField(['', 'Private celebration', 'Keynote / conference', 'Live performance', 'Wedding']);
-  const packageField = new FakeField(['', 'Essential Event Film', 'Signature Event Story', 'Legacy Event Collection']);
   const documentListeners = new Map();
   const analytics = [];
   const requests = [];
@@ -154,8 +138,6 @@ const makeHarness = ({ response = 'success', valid = true } = {}) => {
     body: { classList: new FakeClassList() },
     addEventListener(type, listener) { documentListeners.set(type, listener); },
     querySelector(selector) {
-      if (selector === '#availability-form [name="package_interest"]') return packageField;
-      if (selector === '#availability-form [name="event_type"]') return eventTypeField;
       if (selector === '#year') return null;
       return null;
     },
@@ -234,12 +216,17 @@ const makeHarness = ({ response = 'success', valid = true } = {}) => {
   const submit = () => submitListener.call(form, new FakeEvent('submit'));
   const click = (target) => documentListeners.get('click')?.({ target });
   const resolveSuccess = () => resolveDeferred({ ok: true, status: 200 });
-  return { analytics, click, eventTypeField, form, localStorage, packageField, redirects, requests, resolveSuccess, sessionStorage, submit, warnings };
+  return { analytics, click, form, localStorage, redirects, requests, resolveSuccess, sessionStorage, submit, warnings };
 };
 
 const eventsNamed = (harness, eventName) => harness.analytics.filter((entry) => entry[0] === 'event' && entry[1] === eventName);
 
 const run = async () => {
+  const formMarkup = homepage.slice(homepage.indexOf('<form id="availability-form"'), homepage.indexOf('</form>', homepage.indexOf('<form id="availability-form"')));
+  const formFieldNames = [...formMarkup.matchAll(/\bname="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(formFieldNames, ['form_context', 'name', 'email', 'mobile', 'event_date', 'budget', 'notes'], 'availability form must contain only the requested fields plus form_context');
+  assert.equal((formMarkup.match(/class="form-field"/g) || []).length, 6, 'availability form must expose six visible fields');
+
   const invalid = makeHarness({ valid: false });
   await invalid.submit();
   assert.equal(invalid.requests.length, 0, 'invalid form must not send a request');
@@ -268,6 +255,11 @@ const run = async () => {
   assert.equal(success.requests[0].options.headers.Accept, 'application/json');
   const payload = success.requests[0].payload;
   assert.equal(payload.form_context, 'homepage_availability');
+  assert.equal(payload.event_date, '2026-10-18');
+  assert.equal(payload.budget, '$1,495–$2,094');
+  for (const removedField of ['event_type', 'venue_city', 'coverage_hours', 'guest_count', 'package_interest', 'must_have', 'referral_source']) {
+    assert.equal(Object.hasOwn(payload, removedField), false, `removed field must not be submitted: ${removedField}`);
+  }
   assert.equal(payload.source_page, '/');
   assert.equal(payload.first_touch_utm_source, 'trusted_referral');
   assert.equal(payload.first_touch_utm_campaign, 'prior_campaign');
@@ -286,7 +278,7 @@ const run = async () => {
   assert.ok(confirmation.expires_at > confirmation.confirmed_at);
 
   const analyticsJson = JSON.stringify(success.analytics);
-  for (const pii of ['QA Person', 'qa.person@example.com', '+1 202 555 0100', 'Alexandria, VA']) {
+  for (const pii of ['QA Person', 'qa.person@example.com', '+1 202 555 0100']) {
     assert.ok(!analyticsJson.includes(pii), `analytics must not contain PII: ${pii}`);
   }
 
@@ -322,23 +314,18 @@ const run = async () => {
     }
     closest(selector) { return selector === 'a[href]' ? this : null; }
   }
-  preselection.click(new FakeLink({
-    ctaLocation: 'qa_card',
-    packageInterest: 'Legacy Event Collection',
-    eventTypeChoice: 'Live performance'
-  }));
-  assert.equal(preselection.packageField.value, 'Legacy Event Collection');
-  assert.equal(preselection.eventTypeField.value, 'Live performance');
+  preselection.click(new FakeLink({ ctaLocation: 'qa_card' }));
   const ctaEvent = eventsNamed(preselection, 'event_cta_click')[0];
   assert.equal(ctaEvent[2].cta_location, 'qa_card');
   assert.equal(ctaEvent[2].destination, '/#availability');
 
+  console.log('PASS simplified form: six requested fields and no removed intake fields');
   console.log('PASS invalid form: no request, native validation, no conversion');
   console.log('PASS success: one request, duplicate locked, generate_lead exactly once, safe redirect');
   console.log('PASS attribution: first/last UTM + gclid/gbraid/wbraid in Formspree payload');
   console.log('PASS analytics: no form PII in GA event parameters');
   console.log('PASS reject/network/timeout: error telemetry, no conversion, no redirect, controls restored');
-  console.log('PASS CTA preselection: package and event choices populate the availability form');
+  console.log('PASS CTA tracking: location and destination remain intact');
 };
 
 await run();

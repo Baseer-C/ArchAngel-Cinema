@@ -215,23 +215,6 @@ document.addEventListener('click', (event) => {
       });
     }
 
-    const packageInterest = cleanAttributionValue(link.dataset.packageInterest, 120);
-    if (packageInterest) {
-      const packageField = document.querySelector('#availability-form [name="package_interest"]');
-      if (packageField && [...packageField.options].some((option) => option.value === packageInterest)) {
-        packageField.value = packageInterest;
-        packageField.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }
-
-    const eventTypeChoice = cleanAttributionValue(link.dataset.eventTypeChoice, 120);
-    if (eventTypeChoice) {
-      const eventTypeField = document.querySelector('#availability-form [name="event_type"]');
-      if (eventTypeField && [...eventTypeField.options].some((option) => option.value === eventTypeChoice)) {
-        eventTypeField.value = eventTypeChoice;
-        eventTypeField.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }
   }
 
   if (eventButton) {
